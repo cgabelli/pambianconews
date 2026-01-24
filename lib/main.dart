@@ -162,74 +162,6 @@ class NewsItem {
 // --- DATA MOCK ---
 
 final List<NewsItem> mockData = [
-  NewsItem(
-    id: '0',
-    title: 'PAMBIANCO\nDIGIT',
-    subtitle: 'The Future of Digital Luxury',
-    type: PageType.cover,
-    date: DateTime.now(),
-  ),
-  ),
-
-  NewsItem(
-    id: '2',
-    title: 'L\'Evoluzione del Retail di Lusso',
-    subtitle: 'Come il digitale sta riscrivendo le regole dell\'esperienza in-store.',
-    category: 'RETAIL',
-    author: 'Redazione Pambianco',
-    content: 'Nel panorama attuale, il confine tra fisico e digitale svanisce. I brand più lungimiranti stanno integrando tecnologie as-a-service per creare percorsi d\'acquisto iper-personalizzati...\n\nIl futuro del lusso non risiede più solo nel prodotto, ma nell\'ecosistema di valori e servizi che lo circonda. Le nuove generazioni di consumatori cercano autenticità e fluidità.',
-    imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.standard,
-    date: DateTime.now(),
-  ),
-  NewsItem(
-    id: '3',
-    title: 'Rolex: Un Dominio Incontrastato',
-    subtitle: 'Analisi di un record di fatturato.',
-    category: 'WATCHES',
-    author: 'Marco Rossi',
-    content: 'Rolex si conferma leader assoluto, trainando la crescita dell\'intero comparto svizzero.',
-    imageUrl: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=2080&auto=format&fit=crop',
-    quote: "La coerenza nel design e la precisione tecnica sono le chiavi del nostro successo centenario.",
-    type: PageType.article,
-    layoutType: ArticleLayoutType.quote,
-    date: DateTime.now(),
-  ),
-  NewsItem(
-    id: '4',
-    title: 'Il Dilemma della Sostenibilità',
-    subtitle: 'Sfide e opportunità per il lusso consapevole.',
-    category: 'ENVIRONMENT',
-    author: 'Giulia Bianchi',
-    content: 'La trasparenza della supply chain è diventata l\'asset più critico per i marchi della moda. La sfida è trasformare un obbligo normativo in un vantaggio competitivo reale.',
-    imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2013&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.split,
-    date: DateTime.now(),
-  ),
-  NewsItem(
-    id: '5',
-    title: 'Porsche: Design e Futuro',
-    subtitle: 'Icona eterna, anima elettrica.',
-    category: 'AUTOMOTIVE',
-    author: 'Redazione Motori',
-    content: 'La nuova era della mobilità non sacrifica il piacere della guida ma lo evolve.',
-    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    date: DateTime.now(),
-  ),
-
-  NewsItem(
-
-    id: '5',
-    title: 'Porsche: Nuova Era Elettrica',
-    subtitle: 'Partner Tecnico Ufficiale',
-    type: PageType.adv,
-    date: DateTime.now(),
-    imageUrl: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2070&auto=format&fit=crop',
-  ),
 ];
 
 
@@ -245,7 +177,15 @@ class MagazineScreen extends StatefulWidget {
 class _MagazineScreenState extends State<MagazineScreen> {
   final PageController _pageController = PageController();
   double _currentPage = 0;
-  List<NewsItem> _dynamicData = List.from(mockData);
+  List<NewsItem> _dynamicData = [
+    NewsItem(
+      id: '0',
+      title: 'PAMBIANCO\nDIGIT',
+      subtitle: 'The Future of Digital Luxury',
+      type: PageType.cover,
+      date: DateTime.now(),
+    ),
+  ];
   bool _isLoadingModa = false;
 
   @override
@@ -343,18 +283,25 @@ class _MagazineScreenState extends State<MagazineScreen> {
             left: 0,
             right: 0,
             child: Center(
-              child: GlassDock(
-                onCategoryTap: (category) {
-                  int targetIndex = _dynamicData.indexWhere((e) => e.category == category);
-                  if (targetIndex != -1) {
-                    _pageController.animateToPage(
-                      targetIndex, 
-                      duration: const Duration(milliseconds: 600), 
-                      curve: Curves.easeOutQuart,
-                    );
-                  }
-                },
-                magazines: _dynamicData.where((item) => item.category == 'MAGAZINE').toList(),
+              child: Builder(
+                builder: (context) => GlassDock(
+                  onCategoryTap: (category) {
+                    if (category == 'MAGAZINE') {
+                      // Use the local context from Builder to show bottom sheet
+                      _showEdicolaGrid(context, _dynamicData.where((e) => e.category == 'MAGAZINE').toList());
+                    } else {
+                      int targetIndex = _dynamicData.indexWhere((e) => e.category == category);
+                      if (targetIndex != -1) {
+                        _pageController.animateToPage(
+                          targetIndex, 
+                          duration: const Duration(milliseconds: 600), 
+                          curve: Curves.easeOutQuart,
+                        );
+                      }
+                    }
+                  },
+                  magazines: _dynamicData.where((item) => item.category == 'MAGAZINE').toList(),
+                ),
               ),
             ),
 
@@ -492,82 +439,6 @@ class _CoverLayout extends StatelessWidget {
   }
 }
 
-class _IndexLayout extends StatelessWidget {
-  final NewsItem item;
-  const _IndexLayout({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 60),
-          Text(
-            item.title,
-            style: GoogleFonts.bodoniModa(
-              fontSize: 48,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -1,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(height: 2, width: 60, color: const Color(0xFFD4AF37)),
-          const SizedBox(height: 40),
-          Expanded(
-            child: ListView.separated(
-              itemCount: mockData.where((e) => e.type == PageType.article).length,
-              separatorBuilder: (_, __) => const SizedBox(height: 30),
-              itemBuilder: (context, index) {
-                final articles = mockData.where((e) => e.type == PageType.article).toList();
-                final article = articles[index];
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '0${index + 1}',
-                      style: GoogleFonts.spaceMono(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFFD4AF37),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            article.category!,
-                            style: GoogleFonts.spaceMono(
-                              fontSize: 10,
-                              letterSpacing: 2,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white38,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            article.title,
-                            style: GoogleFonts.bodoniModa(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _ArticleDispatcher extends StatelessWidget {
   final NewsItem item;
@@ -704,89 +575,6 @@ class _ArticleStandardLayout extends StatelessWidget {
   }
 }
 
-class _ArticleSplitLayout extends StatelessWidget {
-  final NewsItem item;
-  final double parallaxRatio;
-  const _ArticleSplitLayout({required this.item, required this.parallaxRatio});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 4,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Transform.translate(
-                  offset: Offset(parallaxRatio * 30, 0),
-                  child: Image.network(
-                    item.imageUrl!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Container(color: Colors.black26),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 6,
-          child: Container(
-            color: const Color(0xFF151515),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(30),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    item.category!,
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 10,
-                      letterSpacing: 2,
-                      color: const Color(0xFFD4AF37),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    item.title,
-                    style: GoogleFonts.bodoniModa(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    item.content!,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      height: 1.5,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Text(
-                    'di ${item.author}',
-                    style: GoogleFonts.spaceMono(
-                      fontSize: 10,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white38,
-                    ),
-                  ),
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ),
-        ),
-
-      ],
-    );
-  }
-}
 
 class _ArticleQuoteLayout extends StatelessWidget {
   final NewsItem item;
@@ -1140,7 +928,7 @@ class GlassDock extends StatelessWidget {
                 _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
                 _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
                 _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
-                _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
+                _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => _showEdicolaGrid(context, magazines)),
                 // Build v1.1
 
               ],
@@ -1152,12 +940,10 @@ class GlassDock extends StatelessWidget {
   }
 
 
-  void _showEdicolaGrid(BuildContext context) {
+  void _showEdicolaGrid(BuildContext context, List<NewsItem> magazinesList) {
     // Group by categories and take only the latest for each
     final Map<String, NewsItem> latestByCategory = {};
-    for (var mag in magazines) {
-      // We assume category grouping logic here. If we don't have real categories, 
-      // we could group by keywords in title (Magazine, Beauty, Design, etc.)
+    for (var mag in magazinesList) {
       String group = 'General';
       if (mag.title.contains('Beauty')) group = 'Beauty';
       else if (mag.title.contains('Design')) group = 'Design';
