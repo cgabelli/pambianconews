@@ -412,9 +412,11 @@ class _CoverLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        CustomPaint(
-          size: MediaQuery.of(context).size,
-          painter: GenerativeCoverPainter(seed: item.date.millisecondsSinceEpoch),
+        Positioned.fill(
+          child: Image.network(
+            'https://images.unsplash.com/photo-1537832816519-689ad163238b?q=80&w=2659&auto=format&fit=crop', // A cinematic fashion image
+            fit: BoxFit.cover,
+          ),
         ),
         // Overlay Gradients for Readability
         Container(
@@ -445,26 +447,25 @@ class _CoverLayout extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 10),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  item.title,
-                  style: GoogleFonts.bodoniModa(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w800,
-                    height: 0.9,
-                  ),
+              const SizedBox(height: 15),
+              Text(
+                'PAMBIANCO\nDIGIT',
+                style: GoogleFonts.bodoniModa(
+                  fontSize: 84,
+                  fontWeight: FontWeight.w900,
+                  height: 0.85,
+                  letterSpacing: -2,
                 ),
               ),
+              const SizedBox(height: 30),
+              Container(height: 1, width: 40, color: const Color(0xFFD4AF37)),
               const SizedBox(height: 20),
               Text(
                 '${item.date.day} GENNAIO 2026',
                 style: GoogleFonts.spaceMono(
                   fontSize: 14,
-                  letterSpacing: 2,
-                  color: Colors.white70,
+                  letterSpacing: 3,
+                  color: Colors.white,
                 ),
               ),
             ],
