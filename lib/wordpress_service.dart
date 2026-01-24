@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'main.dart'; // To access NewsItem
+import 'package:flutter/foundation.dart';
 
 class WordPressService {
   static const String mainBaseUrl = 'https://www.pambianconews.com/wp-json/wp/v2';
@@ -37,42 +38,64 @@ class WordPressService {
         for (var itemJson in data) {
           final item = NewsItem.fromWordPress(itemJson, portalName: portalName);
           
-          // Special handling for MAGAZINE portal to fetch PDF from attachments if not in meta
-          if (portalName == 'MAGAZINE' && item.pdfUrl == null) {
+          if (portalName == 'MAGAZINE') {
+            String? foundPdf = item.pdfUrl;
+            String? foundThumb = (item.imageUrl != null && !item.imageUrl!.contains('unsplash')) ? item.imageUrl : null;
+
+            // Try to fetch attachments if data is missing
             try {
               final attachmentsUrl = '$baseUrl/media?parent=${item.id}';
               final mediaRes = await http.get(Uri.parse(attachmentsUrl));
               if (mediaRes.statusCode == 200) {
                 final List<dynamic> mediaData = json.decode(mediaRes.body);
-                String? foundPdf;
                 for (var media in mediaData) {
-                  if (media['mime_type'] == 'application/pdf') {
+                  if (media['mime_type'] == 'application/pdf' && foundPdf == null) {
                     foundPdf = media['source_url'];
-                    break;
+                  } else if (media['mime_type'].toString().contains('image') && foundThumb == null) {
+                    foundThumb = media['source_url'];
                   }
                 }
-                
-                if (foundPdf != null) {
-                  items.add(NewsItem(
-                    id: item.id,
-                    title: item.title,
-                    subtitle: item.subtitle,
-                    category: item.category,
-                    author: item.author,
-                    content: item.content,
-                    imageUrl: item.imageUrl,
-                    type: item.type,
-                    date: item.date,
-                    pdfUrl: foundPdf,
-                  ));
-                  continue;
+              }
+
+              // FALLBACK: Search media by title if still nothing
+              if (foundThumb == null || foundPdf == null) {
+                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(item.title)}';
+                final searchRes = await http.get(Uri.parse(searchUrl));
+                if (searchRes.statusCode == 200) {
+                  final List<dynamic> searchData = json.decode(searchRes.body);
+                  for (var media in searchData) {
+                    if (media['mime_type'] == 'application/pdf' && foundPdf == null) {
+                      foundPdf = media['source_url'];
+                    } else if (media['mime_type'].toString().contains('image') && foundThumb == null) {
+                      foundThumb = media['source_url'];
+                    }
+                  }
                 }
               }
             } catch (e) {
               print('Error fetching attachments for magazine ${item.id}: $e');
             }
+
+            // Reconstruction with CORS proxy if needed
+            if (foundThumb != null && kIsWeb) {
+               foundThumb = 'https://images.weserv.nl/?url=${Uri.encodeComponent(foundThumb)}&w=1000';
+            }
+
+            items.add(NewsItem(
+              id: item.id,
+              title: item.title,
+              subtitle: item.subtitle,
+              category: item.category,
+              author: item.author,
+              content: item.content,
+              imageUrl: foundThumb ?? item.imageUrl,
+              type: item.type,
+              date: item.date,
+              pdfUrl: foundPdf,
+            ));
+          } else {
+            items.add(item);
           }
-          items.add(item);
         }
         return items;
       }

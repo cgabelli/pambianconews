@@ -352,10 +352,9 @@ class _MagazineScreenState extends State<MagazineScreen> {
                       duration: const Duration(milliseconds: 600), 
                       curve: Curves.easeOutQuart,
                     );
-                  } else if (category == 'INDICE') {
-                    _pageController.animateToPage(1, duration: const Duration(milliseconds: 600), curve: Curves.easeOutQuart);
                   }
                 },
+                magazines: _dynamicData.where((item) => item.category == 'MAGAZINE').toList(),
               ),
             ),
 
@@ -1112,8 +1111,9 @@ class GenerativeCoverPainter extends CustomPainter {
 
 class GlassDock extends StatelessWidget {
   final Function(String) onCategoryTap;
+  final List<NewsItem> magazines;
 
-  const GlassDock({super.key, required this.onCategoryTap});
+  const GlassDock({super.key, required this.onCategoryTap, required this.magazines});
 
   @override
   Widget build(BuildContext context) {
@@ -1138,8 +1138,8 @@ class GlassDock extends StatelessWidget {
                 _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
                 _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
                 _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
-                _DockIcon(icon: Icons.restaurant, label: 'WINE', onTap: () => onCategoryTap('WINE&FOOD')),
-                _DockIcon(icon: Icons.hotel, label: 'HOTEL', onTap: () => onCategoryTap('HOTELLERIE')),
+                _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
+                _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
                 _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
 
               ],
@@ -1152,7 +1152,23 @@ class GlassDock extends StatelessWidget {
 
 
   void _showEdicolaGrid(BuildContext context) {
-    final magazines = mockData.where((item) => item.id.startsWith('mag_')).toList();
+    // Group by categories and take only the latest for each
+    final Map<String, NewsItem> latestByCategory = {};
+    for (var mag in magazines) {
+      // We assume category grouping logic here. If we don't have real categories, 
+      // we could group by keywords in title (Magazine, Beauty, Design, etc.)
+      String group = 'General';
+      if (mag.title.contains('Beauty')) group = 'Beauty';
+      else if (mag.title.contains('Design')) group = 'Design';
+      else if (mag.title.contains('Hotellerie')) group = 'Hotellerie';
+      else if (mag.title.contains('Magazine')) group = 'Magazine';
+      
+      if (!latestByCategory.containsKey(group)) {
+        latestByCategory[group] = mag;
+      }
+    }
+    
+    final displayMagazines = latestByCategory.values.toList();
     
     showModalBottomSheet(
       context: context,
@@ -1194,9 +1210,9 @@ class GlassDock extends StatelessWidget {
                     crossAxisSpacing: 20,
                     mainAxisSpacing: 20,
                   ),
-                  itemCount: magazines.length,
+                  itemCount: displayMagazines.length,
                   itemBuilder: (context, index) {
-                    final mag = magazines[index];
+                    final mag = displayMagazines[index];
                     return GestureDetector(
                       onTap: () {
                         Navigator.pop(context);
