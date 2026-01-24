@@ -59,6 +59,20 @@ class WordPressService {
               }
 
               if (foundThumb == null) {
+                // v1.4 - Try searching for "cover [number]"
+                final match = RegExp(r'n(\d+)').firstMatch(item.title);
+                if (match != null) {
+                   final String shortSearch = 'cover magazine n${match.group(1)}';
+                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=5';
+                   final shortRes = await http.get(Uri.parse(shortUrl));
+                   if (shortRes.statusCode == 200) {
+                     final List<dynamic> shortMedia = json.decode(shortRes.body);
+                     if (shortMedia.isNotEmpty) foundThumb = shortMedia[0]['source_url'];
+                   }
+                }
+              }
+
+              if (foundThumb == null) {
                  final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=5';
                  final crossRes = await http.get(Uri.parse(crossUrl));
                  if (crossRes.statusCode == 200) {

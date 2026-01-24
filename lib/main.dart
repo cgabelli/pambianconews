@@ -373,20 +373,30 @@ class _CoverLayout extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               const SizedBox(height: 15),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'PAMBIANCO\nDIGITAL',
-                  style: GoogleFonts.bodoniModa(
-                    fontSize: 80,
-                    fontWeight: FontWeight.w900,
-                    height: 0.85,
-                    letterSpacing: -1,
-                  ),
+            Text(
+              item.title,
+              textAlign: TextAlign.left, // Changed to left for consistency with original layout
+              style: GoogleFonts.bodoniModa(
+                fontSize: 72,
+                fontWeight: FontWeight.w900,
+                height: 0.85,
+                letterSpacing: -2,
+                color: Colors.white,
+              ),
+            ),
+            if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text(
+                item.subtitle!.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 2,
+                  color: Colors.white70,
                 ),
               ),
-              const SizedBox(height: 20),
+            ],
+            const SizedBox(height: 16),
               Text('${item.date.day} GENNAIO 2026', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 3, color: Colors.white)),
             ],
           ),
