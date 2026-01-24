@@ -73,7 +73,8 @@ class WordPressService {
                     'cover $category n$issueNum',
                     '$category n$issueNum',
                     '${category}_n$issueNum',
-                    item.title.split('_').first, // e.g. "PambiancoBeauty"
+                    item.title.replaceAll('_', ' '), // e.g. "PambiancoDesign n5 2025" -> "PambiancoDesign n5 2025"
+                    item.title.split('_').first.replaceAll('Pambianco', 'Pambianco '), // e.g. "PambiancoDesign" -> "Pambianco Design"
                   ];
 
                   for (final variant in searchVariants) {
