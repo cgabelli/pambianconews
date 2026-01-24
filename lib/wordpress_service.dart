@@ -57,9 +57,10 @@ class WordPressService {
                 }
               }
 
-              // FALLBACK: Search media by title if still nothing
+              // FALLBACK: Search media by title OR slug
               if (foundThumb == null || foundPdf == null) {
-                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(item.title)}';
+                final baseTitle = item.title.replaceAll('Pambianco ', '').replaceAll('_', ' ');
+                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(baseTitle)}';
                 final searchRes = await http.get(Uri.parse(searchUrl));
                 if (searchRes.statusCode == 200) {
                   final List<dynamic> searchData = json.decode(searchRes.body);
@@ -71,6 +72,22 @@ class WordPressService {
                     }
                   }
                 }
+              }
+              
+              // LAST RESORT: Check if there's a featured image on the POST (often mirrored)
+              if (foundThumb == null) {
+                 // Try search post with same name on main posts endpoint
+                 final postSearch = '$baseUrl/posts?search=${Uri.encodeComponent(item.title)}&_embed';
+                 final postRes = await http.get(Uri.parse(postSearch));
+                 if (postRes.statusCode == 200) {
+                   final List<dynamic> postData = json.decode(postRes.body);
+                   if (postData.isNotEmpty && postData[0]['_embedded'] != null) {
+                     final embedded = postData[0]['_embedded'];
+                     if (embedded['wp:featuredmedia'] != null && embedded['wp:featuredmedia'].isNotEmpty) {
+                       foundThumb = embedded['wp:featuredmedia'][0]['source_url'];
+                     }
+                   }
+                 }
               }
             } catch (e) {
               print('Error fetching attachments for magazine ${item.id}: $e');
@@ -88,6 +105,7 @@ class WordPressService {
               category: item.category,
               author: item.author,
               content: item.content,
+              // v1.1 - Force Refresh
               imageUrl: foundThumb ?? item.imageUrl,
               type: item.type,
               date: item.date,
