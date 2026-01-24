@@ -111,7 +111,7 @@ class NewsItem {
       imageUrl = 'https://images.weserv.nl/?url=${Uri.encodeComponent(imageUrl)}&w=1000';
     }
 
-    final layouts = [ArticleLayoutType.standard, ArticleLayoutType.split, ArticleLayoutType.quote];
+    final layouts = [ArticleLayoutType.standard, ArticleLayoutType.standard, ArticleLayoutType.quote]; // Removed split
     final idStr = json['id']?.toString() ?? '0';
     final layoutType = layouts[int.parse(idStr) % layouts.length];
 
@@ -131,7 +131,7 @@ class NewsItem {
       id: idStr,
       title: _clean(json['title']?['rendered'] ?? 'Senza Titolo'),
       subtitle: _clean(json['excerpt']?['rendered'] ?? ''),
-      category: 'MODA',
+      category: portalName == 'WINE&FOOD' ? 'WINE&FOOD' : (portalName == 'HOTELLERIE' ? 'HOTELLERIE' : portalName),
       author: authorName ?? 'Redazione Pambianco',
       content: _clean(json['content']?['rendered'] ?? ''),
       imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=2070&auto=format&fit=crop',
@@ -139,6 +139,7 @@ class NewsItem {
       layoutType: layoutType,
       date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
       quote: layoutType == ArticleLayoutType.quote ? _clean(json['title']?['rendered'] ?? '') : null,
+      pdfUrl: json['meta'] != null ? json['meta']['magazine_pdf'] ?? json['meta']['pdf_url'] : null, // Attempt to get PDF from meta
     );
   }
 
@@ -162,66 +163,6 @@ final List<NewsItem> mockData = [
     type: PageType.cover,
     date: DateTime.now(),
   ),
-  NewsItem(
-    id: '1',
-    title: 'SOMMARIO',
-    type: PageType.toc,
-    date: DateTime.now(),
-  ),
-  // MAGAZINES for EDICOLA
-  NewsItem(
-    id: 'mag_1',
-    title: 'Pambianco Magazine n.1 2026',
-    subtitle: 'Luxury & Design Issue',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2025/12/Pambianco-Magazine-n1_2026-cover.jpg', // Placeholder cover
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2025/12/Pambianco-Magazine-n1_2026.pdf',
-  ),
-  NewsItem(
-    id: 'mag_2',
-    title: 'Pambianco Magazine n.6 2025',
-    subtitle: 'Global Retail Report',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/11/Pambianco-Magazine-n6_2024-cover.jpg',
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/11/Pambianco-Magazine-n6_2024.pdf',
-  ),
-  NewsItem(
-    id: 'mag_3',
-    title: 'Pambianco Magazine n.5 2025',
-    subtitle: 'Sustainability Special',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/09/Pambianco-Magazine-n5_2024-cover.jpg',
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/09/Pambianco-Magazine-n5_2024.pdf',
-  ),
-  NewsItem(
-    id: 'mag_4',
-    title: 'Pambianco Magazine n.4 2025',
-    subtitle: 'Beauty & Wellness',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/07/Pambianco-Magazine-n4_2024-cover.jpg',
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/07/Pambianco-Magazine-n4_2024.pdf',
-  ),
-  NewsItem(
-    id: 'mag_5',
-    title: 'Pambianco Magazine n.3 2025',
-    subtitle: 'Innovation in Textiles',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/05/Pambianco-Magazine-n3_2024-cover.jpg',
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/05/Pambianco-Magazine-n3_2024.pdf',
-  ),
-  NewsItem(
-    id: 'mag_6',
-    title: 'Pambianco Magazine n.2 2025',
-    subtitle: 'Watches & Jewelry',
-    imageUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/03/Pambianco-Magazine-n2_2024-cover.jpg',
-    type: PageType.article,
-    date: DateTime.now(),
-    pdfUrl: 'https://magazine.pambianconews.com/wp-content/uploads/sites/8/2024/03/Pambianco-Magazine-n2_2024.pdf',
   ),
 
   NewsItem(
@@ -275,146 +216,6 @@ final List<NewsItem> mockData = [
   ),
 
   NewsItem(
-    id: 'index_moda',
-    title: 'PAMBIANCO MODA',
-    category: 'MODA',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop',
-    subtitle: 'Il cuore pulsante del sistema moda italiano.',
-    content: 'Dalle sfilate di Milano alla supply chain globale, seguiamo l\'evoluzione del fashion business.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'moda_1', title: 'Milano Fashion Week: I Trend 2026', subtitle: 'Analisi delle passerelle', imageUrl: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2070&auto=format&fit=crop', type: PageType.article, date: DateTime.now(), content: 'La sfilata di apertura ha mostrato una forte propensione per i tessuti tecnici riciclati...'),
-      NewsItem(id: 'moda_2', title: 'Sostenibilità: Il Nuovo Standard', subtitle: 'Green è il nuovo nero', imageUrl: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop', type: PageType.article, date: DateTime.now(), content: 'Le aziende tessili stanno investendo massicciamente nel recupero delle fibre...'),
-    ],
-  ),
-  NewsItem(
-    id: 'moda_1',
-    title: 'Milano Fashion Week: I Trend 2026',
-    subtitle: 'Analisi delle passerelle',
-    imageUrl: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2070&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.split,
-    category: 'MODA',
-    author: 'Redazione Moda',
-    content: 'La sfilata di apertura ha mostrato una forte propensione per i tessuti tecnici riciclati, con tagli che richiamano gli anni \'90 riletti in chiave futuristica.',
-    date: DateTime.now(),
-  ),
-  NewsItem(
-    id: 'moda_2',
-    title: 'Sostenibilità: Il Nuovo Standard',
-    subtitle: 'Green è il nuovo nero',
-    imageUrl: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2070&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.standard,
-    category: 'MODA',
-    author: 'Eco Team',
-    content: 'Le aziende tessili stanno investendo massicciamente nel recupero delle fibre. Entro il 2027 il 40% della produzione nazionale sarà a impatto zero.',
-    date: DateTime.now(),
-  ),
-
-  NewsItem(
-    id: 'index_design',
-    title: 'PAMBIANCO DESIGN',
-    category: 'DESIGN',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1534073828943-f801091bb2a2?q=80&w=2070&auto=format&fit=crop',
-    subtitle: 'L\'eccellenza dell\'arredo e del vivere contemporaneo.',
-    content: 'L\'innovazione dei materiali e il genio creativo dei grandi maestri.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'design_1', title: 'Salone del Mobile: Anteprime', subtitle: 'Cosa vedremo a Rho', imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=2070&auto=format&fit=crop', type: PageType.article, date: DateTime.now(), content: 'Il Salone si trasforma in hub tecnologico...'),
-    ],
-  ),
-  NewsItem(
-    id: 'design_1',
-    title: 'Salone del Mobile: Anteprime',
-    subtitle: 'Cosa vedremo a Rho',
-    imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=2070&auto=format&fit=crop',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.quote,
-    category: 'DESIGN',
-    author: 'Design Team',
-    quote: 'La tecnologia deve scomparire per lasciare spazio all\'emozione dell\'abitare.',
-    content: 'Il Salone si trasforma in hub tecnologico, con installazioni interattive che analizzano i dati biometrici per adattare l\'ambiente.',
-    date: DateTime.now(),
-  ),
-
-  NewsItem(
-    id: 'index_beauty',
-    title: 'PAMBIANCO BEAUTY',
-    category: 'BEAUTY',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=2087&auto=format&fit=crop',
-    subtitle: 'Innovazione e trend nell\'universo cosmetico.',
-    content: 'Il mercato della bellezza tra sostenibilità e nuove tecnologie skincare.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'beauty_1', title: 'Skincare Hightech: AI e Personalizzazione', subtitle: 'La crema del futuro', imageUrl: '', type: PageType.article, date: DateTime.now()),
-      NewsItem(id: 'beauty_2', title: 'Il boom del Make-up Maschile', subtitle: 'Nuovi segmenti di crescita', imageUrl: '', type: PageType.article, date: DateTime.now()),
-    ],
-  ),
-  NewsItem(
-    id: 'index_wine',
-    title: 'WINE & FOOD',
-    category: 'WINE & FOOD',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?q=80&w=2070&auto=format&fit=crop',
-    subtitle: 'L\'enogastronomia come asset strategico.',
-    content: 'Analisi dei mercati vinicoli e delle nuove frontiere del fine dining.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'wine_1', title: 'Vinitaly 2026: Export in Crescita', subtitle: 'Mercati USA e Asia', imageUrl: '', type: PageType.article, date: DateTime.now()),
-      NewsItem(id: 'wine_2', title: 'Super Tuscan: Investimenti Record', subtitle: 'Il vino come bene rifugio', imageUrl: '', type: PageType.article, date: DateTime.now()),
-    ],
-  ),
-  NewsItem(
-    id: 'index_hotel',
-    title: 'PAMBIANCO HOTELLERIE',
-    category: 'HOTELLERIE',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=2070&auto=format&fit=crop',
-    subtitle: 'L\'ospitalità d\'eccellenza nel mondo.',
-    content: 'Trend dell\'hotellerie di lusso e nuovi format di accoglienza.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'hotel_1', title: 'Boutique Hotel: La Sfida del Digitale', subtitle: 'Phygital Experience', imageUrl: '', type: PageType.article, date: DateTime.now()),
-    ],
-  ),
-  NewsItem(
-    id: 'index_realestate',
-    title: 'REAL ESTATE NEWS',
-    category: 'REAL ESTATE',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2073&auto=format&fit=crop',
-    subtitle: 'Il mercato immobiliare di pregio.',
-    content: 'Focus sulle grandi transazioni e lo sviluppo urbano nelle capitali mondiali.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 're_1', title: 'Milano: I Nuovi Quartieri del Lusso', subtitle: 'Oltre Porta Nuova', imageUrl: '', type: PageType.article, date: DateTime.now()),
-    ],
-  ),
-  NewsItem(
-    id: 'index_sport',
-    title: 'PAMBIANCO SPORT',
-    category: 'SPORT',
-    type: PageType.article,
-    layoutType: ArticleLayoutType.fullImage,
-    imageUrl: 'https://images.unsplash.com/photo-1461896756913-90d1656c075f?q=80&w=2070&auto=format&fit=crop',
-    subtitle: 'Il business dello sport e dell\'activewear.',
-    content: 'Le strategie dei grandi brand sportivi e l\'integrazione tra fashion e performance.',
-    date: DateTime.now(),
-    childItems: [
-      NewsItem(id: 'sport_1', title: 'Sneakers Culture: Resell Market 2026', subtitle: 'Trend in frenata?', imageUrl: '', type: PageType.article, date: DateTime.now()),
-    ],
-  ),
-  NewsItem(
 
     id: '5',
     title: 'Porsche: Nuova Era Elettrica',
@@ -452,19 +253,30 @@ class _MagazineScreenState extends State<MagazineScreen> {
     _fetchAllLiveContent();
   }
 
+  // Helper to get PDF URL from magazine content or meta if available
+  String? _findPdfUrl(Map<String, dynamic> json) {
+    // Check common places for PDF URL in custom fields
+    if (json['meta'] != null) {
+      if (json['meta']['pdf_url'] != null) return json['meta']['pdf_url'];
+      if (json['meta']['_pdf_url'] != null) return json['meta']['_pdf_url'];
+      if (json['meta']['magazine_pdf'] != null) return json['meta']['magazine_pdf'];
+    }
+    // FALLBACK: If we can't find it, we might need a specific field name from the USER
+    return null;
+  }
+
   Future<void> _fetchAllLiveContent() async {
     setState(() => _isLoadingModa = true);
     try {
       final service = WordPressService();
-      final List<String> portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE', 'HOTEL', 'REAL ESTATE', 'SPORT'];
+      final List<String> portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE&FOOD', 'HOTELLERIE', 'MAGAZINE'];
       
       for (String portal in portals) {
         final articles = await service.fetchArticlesForPortal(portal);
         if (articles.isNotEmpty) {
           setState(() {
             // Map our UI portal name to the ID in _dynamicData
-            String internalId = 'index_${portal.toLowerCase().replaceAll(' ', '')}';
-            if (portal == 'WINE') internalId = 'index_wine'; // special case if needed
+            String internalId = 'index_${portal.toLowerCase().replaceAll('&', '').replaceAll(' ', '')}';
             
             int sectionIndex = _dynamicData.indexWhere((item) => item.id == internalId);
             if (sectionIndex != -1) {
@@ -581,7 +393,7 @@ class MagazinePage extends StatelessWidget {
       case PageType.cover:
         return _CoverLayout(item: item);
       case PageType.toc:
-        return _IndexLayout(item: item);
+        return const SizedBox.shrink(); // Removed TOC
       case PageType.article:
         return _ArticleDispatcher(item: item, parallaxRatio: parallaxRatio, controller: controller);
 
@@ -754,7 +566,7 @@ class _ArticleDispatcher extends StatelessWidget {
       case ArticleLayoutType.standard:
         return _ArticleStandardLayout(item: item, parallaxRatio: parallaxRatio);
       case ArticleLayoutType.split:
-        return _ArticleSplitLayout(item: item, parallaxRatio: parallaxRatio);
+        return _ArticleStandardLayout(item: item, parallaxRatio: parallaxRatio); // Fallback to standard
       case ArticleLayoutType.quote:
         return _ArticleQuoteLayout(item: item, parallaxRatio: parallaxRatio);
       case ArticleLayoutType.fullImage:
@@ -1309,13 +1121,9 @@ class GlassDock extends StatelessWidget {
                 _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
                 _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
                 _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
-                _DockIcon(icon: Icons.restaurant, label: 'WINE', onTap: () => onCategoryTap('WINE & FOOD')),
+                _DockIcon(icon: Icons.restaurant, label: 'WINE', onTap: () => onCategoryTap('WINE&FOOD')),
                 _DockIcon(icon: Icons.hotel, label: 'HOTEL', onTap: () => onCategoryTap('HOTELLERIE')),
-                _DockIcon(icon: Icons.location_city, label: 'REAL ESTATE', onTap: () => onCategoryTap('REAL ESTATE')),
-                _DockIcon(icon: Icons.sports_tennis, label: 'SPORT', onTap: () => onCategoryTap('SPORT')),
-                _DockIcon(icon: Icons.picture_as_pdf, label: 'EDICOLA', onTap: () {
-                  _showEdicolaGrid(context);
-                }),
+                _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
 
               ],
             ),

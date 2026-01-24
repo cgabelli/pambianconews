@@ -7,13 +7,12 @@ class WordPressService {
   
   // Portal Configurations
   static final Map<String, Map<String, dynamic>> portalConfigs = {
-    'MODA': {'url': mainBaseUrl, 'category': 5}, // Moda remains on main hub
+    'MODA': {'url': mainBaseUrl, 'category': 5},
     'DESIGN': {'url': 'https://design.pambianconews.com/wp-json/wp/v2', 'category': null},
     'BEAUTY': {'url': 'https://beauty.pambianconews.com/wp-json/wp/v2', 'category': null},
-    'WINE': {'url': 'https://wine.pambianconews.com/wp-json/wp/v2', 'category': null},
-    'HOTEL': {'url': 'https://hotellerie.pambianconews.com/wp-json/wp/v2', 'category': null},
-    'REAL ESTATE': {'url': 'https://realestate.pambianconews.com/wp-json/wp/v2', 'category': null},
-    'SPORT': {'url': 'https://sport.pambianconews.com/wp-json/wp/v2', 'category': null},
+    'WINE&FOOD': {'url': 'https://wine.pambianconews.com/wp-json/wp/v2', 'category': null},
+    'HOTELLERIE': {'url': 'https://hotellerie.pambianconews.com/wp-json/wp/v2', 'category': null},
+    'MAGAZINE': {'url': 'https://magazine.pambianconews.com/wp-json/wp/v2', 'category': null},
   };
 
   Future<List<NewsItem>> fetchArticlesForPortal(String portalName, {int perPage = 10}) async {
