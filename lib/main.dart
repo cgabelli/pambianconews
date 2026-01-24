@@ -45,7 +45,7 @@ class PambiancoApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0A0A0A),
-        textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFFD4AF37), // Burnished Gold
           secondary: Color(0xFFE5E5E5),
@@ -626,7 +626,7 @@ class _CoverLayout extends StatelessWidget {
             children: [
               Text(
                 'EDIZIONE DEL GIORNO',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.spaceMono(
                   fontSize: 14,
                   letterSpacing: 4,
                   color: const Color(0xFFD4AF37),
@@ -639,7 +639,7 @@ class _CoverLayout extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   item.title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.bodoniModa(
                     fontSize: 72,
                     fontWeight: FontWeight.w800,
                     height: 0.9,
@@ -649,8 +649,8 @@ class _CoverLayout extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 '${item.date.day} GENNAIO 2026',
-                style: GoogleFonts.outfit(
-                  fontSize: 16,
+                style: GoogleFonts.spaceMono(
+                  fontSize: 14,
                   letterSpacing: 2,
                   color: Colors.white70,
                 ),
@@ -678,7 +678,7 @@ class _IndexLayout extends StatelessWidget {
           const SizedBox(height: 60),
           Text(
             item.title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.bodoniModa(
               fontSize: 48,
               fontWeight: FontWeight.w700,
               letterSpacing: -1,
@@ -699,7 +699,7 @@ class _IndexLayout extends StatelessWidget {
                   children: [
                     Text(
                       '0${index + 1}',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.spaceMono(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFFD4AF37),
@@ -712,7 +712,7 @@ class _IndexLayout extends StatelessWidget {
                         children: [
                           Text(
                             article.category!,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.spaceMono(
                               fontSize: 10,
                               letterSpacing: 2,
                               fontWeight: FontWeight.w600,
@@ -722,7 +722,7 @@ class _IndexLayout extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             article.title,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.bodoniModa(
                               fontSize: 20,
                               fontWeight: FontWeight.w500,
                             ),
@@ -832,7 +832,7 @@ class _ArticleStandardLayout extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text(
                   item.category!,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     letterSpacing: 3,
                     fontWeight: FontWeight.w600,
@@ -842,7 +842,7 @@ class _ArticleStandardLayout extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   item.title,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.bodoniModa(
                     fontSize: 34,
                     height: 1.1,
                     fontWeight: FontWeight.w700,
@@ -851,7 +851,7 @@ class _ArticleStandardLayout extends StatelessWidget {
                 const SizedBox(height: 15),
                 Text(
                   item.subtitle!,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
                     color: Colors.white70,
@@ -860,7 +860,7 @@ class _ArticleStandardLayout extends StatelessWidget {
                 const SizedBox(height: 25),
                 Text(
                   item.content!,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     height: 1.6,
                     color: Colors.white.withAlpha(217),
@@ -915,7 +915,7 @@ class _ArticleSplitLayout extends StatelessWidget {
                   const SizedBox(height: 40),
                   Text(
                     item.category!,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       letterSpacing: 2,
                       color: const Color(0xFFD4AF37),
@@ -924,7 +924,7 @@ class _ArticleSplitLayout extends StatelessWidget {
                   const SizedBox(height: 15),
                   Text(
                     item.title,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.bodoniModa(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
                       height: 1.2,
@@ -933,7 +933,7 @@ class _ArticleSplitLayout extends StatelessWidget {
                   const SizedBox(height: 20),
                   Text(
                     item.content!,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       height: 1.5,
                       color: Colors.white70,
@@ -942,7 +942,7 @@ class _ArticleSplitLayout extends StatelessWidget {
                   const SizedBox(height: 30),
                   Text(
                     'di ${item.author}',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.spaceMono(
                       fontSize: 10,
                       fontStyle: FontStyle.italic,
                       color: Colors.white38,
@@ -980,7 +980,7 @@ class _ArticleQuoteLayout extends StatelessWidget {
           Text(
             item.quote!,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.bodoniModa(
               fontSize: 26,
               fontWeight: FontWeight.w300,
               fontStyle: FontStyle.italic,
@@ -992,7 +992,7 @@ class _ArticleQuoteLayout extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             item.author!.toUpperCase(),
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.spaceMono(
               fontSize: 12,
               letterSpacing: 2,
               fontWeight: FontWeight.w700,
@@ -1000,7 +1000,7 @@ class _ArticleQuoteLayout extends StatelessWidget {
           ),
           Text(
             item.title,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.spaceMono(
               fontSize: 11,
               color: Colors.white38,
             ),
@@ -1056,7 +1056,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                     children: [
                       Text(
                         item.category!.toUpperCase(),
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.spaceMono(
                           fontSize: 12,
                           letterSpacing: 4,
                           fontWeight: FontWeight.w700,
@@ -1066,7 +1066,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                       const SizedBox(height: 15),
                       Text(
                         item.title,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.bodoniModa(
                           fontSize: 42,
                           fontWeight: FontWeight.w800,
                           height: 1.0,
@@ -1075,7 +1075,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                       const SizedBox(height: 15),
                       Text(
                         item.subtitle!,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontSize: 18,
                           color: Colors.white70,
                         ),
@@ -1083,7 +1083,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                       const SizedBox(height: 20),
                       Text(
                         item.content!,
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           height: 1.6,
                           color: Colors.white70,
@@ -1109,7 +1109,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                               children: [
                                 Text(
                                   subItem.title.toUpperCase(),
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.bodoniModa(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 1,
@@ -1118,7 +1118,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
                                 const SizedBox(height: 5),
                                 Text(
                                   subItem.subtitle!,
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.spaceMono(
                                     fontSize: 13,
                                     color: Colors.white38,
                                   ),
@@ -1166,7 +1166,7 @@ class _AdvLayout extends StatelessWidget {
             children: [
               Text(
                 'PARTNER CONTENT',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.spaceMono(
                   fontSize: 10,
                   letterSpacing: 4,
                   fontWeight: FontWeight.w700,
@@ -1176,7 +1176,7 @@ class _AdvLayout extends StatelessWidget {
               Text(
                 item.title,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.bodoniModa(
                   fontSize: 40,
                   fontWeight: FontWeight.w300,
                 ),
@@ -1189,7 +1189,7 @@ class _AdvLayout extends StatelessWidget {
                 ),
                 child: Text(
                   'DISCOVER MORE',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.spaceMono(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1348,7 +1348,7 @@ class GlassDock extends StatelessWidget {
                 children: [
                   Text(
                     'EDICOLA',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.bodoniModa(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 2,
@@ -1403,14 +1403,14 @@ class GlassDock extends StatelessWidget {
                             mag.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.bodoniModa(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             mag.subtitle!,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.spaceMono(
                               fontSize: 11,
                               color: Colors.white38,
                             ),
@@ -1469,7 +1469,7 @@ class PdfViewerScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF1A1A1A),
         title: Text(
           title,
-          style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w600),
+          style: GoogleFonts.bodoniModa(fontSize: 16, fontWeight: FontWeight.w600),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
@@ -1509,7 +1509,7 @@ class _DockIcon extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: GoogleFonts.outfit(fontSize: 8, letterSpacing: 1, color: Colors.white54),
+              style: GoogleFonts.spaceMono(fontSize: 8, letterSpacing: 1, color: Colors.white54),
             ),
           ],
         ),
