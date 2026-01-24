@@ -57,18 +57,24 @@ class WordPressService {
                 }
               }
 
-              // FALLBACK: Search media by title OR slug
+              // FALLBACK: Search media by title OR slug more aggressively
               if (foundThumb == null || foundPdf == null) {
-                final baseTitle = item.title.replaceAll('Pambianco ', '').replaceAll('_', ' ');
-                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(baseTitle)}';
+                final baseTitle = item.title.replaceAll('Pambianco ', '').replaceAll('_', ' ').split(' n')[0];
+                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(baseTitle)}&per_page=20';
                 final searchRes = await http.get(Uri.parse(searchUrl));
                 if (searchRes.statusCode == 200) {
                   final List<dynamic> searchData = json.decode(searchRes.body);
                   for (var media in searchData) {
-                    if (media['mime_type'] == 'application/pdf' && foundPdf == null) {
+                    final String title = media['title']['rendered'].toString().toLowerCase();
+                    final String mime = media['mime_type'].toString();
+                    
+                    if (mime == 'application/pdf' && foundPdf == null) {
                       foundPdf = media['source_url'];
-                    } else if (media['mime_type'].toString().contains('image') && foundThumb == null) {
-                      foundThumb = media['source_url'];
+                    } else if (mime.contains('image') && foundThumb == null) {
+                      // Check if title matches magazine title
+                      if (title.contains(item.title.toLowerCase()) || item.title.toLowerCase().contains(title)) {
+                        foundThumb = media['source_url'];
+                      }
                     }
                   }
                 }
@@ -90,7 +96,7 @@ class WordPressService {
                  }
               }
             } catch (e) {
-              print('Error fetching attachments for magazine ${item.id}: $e');
+              debugPrint('Error fetching attachments for magazine ${item.id}: $e');
             }
 
             // Reconstruction with CORS proxy if needed
@@ -105,8 +111,8 @@ class WordPressService {
               category: item.category,
               author: item.author,
               content: item.content,
-              // v1.1 - Force Refresh
-              imageUrl: foundThumb ?? item.imageUrl,
+              // v1.1 - Force Refresh and prioritize foundThumb
+              imageUrl: (foundThumb != null) ? foundThumb : item.imageUrl,
               type: item.type,
               date: item.date,
               pdfUrl: foundPdf,
@@ -118,7 +124,7 @@ class WordPressService {
         return items;
       }
     } catch (e) {
-      print('Error fetching WordPress articles for $portalName: $e');
+      debugPrint('Error fetching WordPress articles for $portalName: $e');
     }
     return [];
   }

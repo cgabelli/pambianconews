@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+// Finalized v1.2 Cleanup
 import 'dart:ui' as ui;
 import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
@@ -25,7 +25,7 @@ class PambiancoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'PAMBIANCO DIGIT',
+      title: 'PAMBIANCO DIGITAL',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -145,16 +145,16 @@ class MagazineScreen extends StatefulWidget {
 class _MagazineScreenState extends State<MagazineScreen> {
   final PageController _pageController = PageController();
   double _currentPage = 0;
-  List<NewsItem> _dynamicData = [
+  final List<NewsItem> _dynamicData = [
     NewsItem(
       id: '0',
-      title: 'PAMBIANCO\nDIGIT',
+      title: 'PAMBIANCO\nDIGITAL',
       subtitle: 'The Future of Digital Luxury',
       type: PageType.cover,
       date: DateTime.now(),
     ),
   ];
-  bool _isLoading = false;
+  // bool _isLoading = false; // Unused in build, removing to satisfy lint
 
   @override
   void initState() {
@@ -168,7 +168,7 @@ class _MagazineScreenState extends State<MagazineScreen> {
   }
 
   Future<void> _fetchAllLiveContent() async {
-    setState(() => _isLoading = true);
+    // setState(() => _isLoading = true);
     try {
       final service = WordPressService();
       final portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE&FOOD', 'HOTELLERIE', 'MAGAZINE'];
@@ -192,9 +192,9 @@ class _MagazineScreenState extends State<MagazineScreen> {
         }
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
     } finally {
-      setState(() => _isLoading = false);
+      // setState(() => _isLoading = false);
     }
   }
 
@@ -204,11 +204,18 @@ class _MagazineScreenState extends State<MagazineScreen> {
     final Map<String, NewsItem> latestByCategory = {};
     for (var mag in magazinesList) {
       String group = 'General';
-      if (mag.title.contains('Beauty')) group = 'Beauty';
-      else if (mag.title.contains('Design')) group = 'Design';
-      else if (mag.title.contains('Hotellerie')) group = 'Hotellerie';
-      else if (mag.title.contains('Magazine')) group = 'Magazine';
-      if (!latestByCategory.containsKey(group)) latestByCategory[group] = mag;
+      if (mag.title.contains('Beauty')) {
+        group = 'Beauty';
+      } else if (mag.title.contains('Design')) {
+        group = 'Design';
+      } else if (mag.title.contains('Hotellerie')) {
+        group = 'Hotellerie';
+      } else if (mag.title.contains('Magazine')) {
+        group = 'Magazine';
+      }
+      if (!latestByCategory.containsKey(group)) {
+        latestByCategory[group] = mag;
+      }
     }
     
     final displayMagazines = latestByCategory.values.toList();
@@ -374,9 +381,16 @@ class _CoverLayout extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('EDIZIONE DEL GIORNO', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 4, color: const Color(0xFFD4AF37), fontWeight: FontWeight.w600)),
               const SizedBox(height: 15),
-              Text('PAMBIANCO\nDIGIT', style: GoogleFonts.bodoniModa(fontSize: 72, fontWeight: FontWeight.w900, height: 0.85, letterSpacing: -2)),
+              Text(
+                'PAMBIANCO\nDIGITAL',
+                style: GoogleFonts.bodoniModa(
+                  fontSize: 72,
+                  fontWeight: FontWeight.w900,
+                  height: 0.85,
+                  letterSpacing: -2,
+                ),
+              ),
               const SizedBox(height: 20),
               Text('${item.date.day} GENNAIO 2026', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 3, color: Colors.white)),
             ],
@@ -545,24 +559,22 @@ class GlassDock extends StatelessWidget {
         borderRadius: BorderRadius.circular(35),
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
-                _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
-                _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
-                _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
-                _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
-                _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
-              ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
+                    _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
+                    _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
+                    _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
+                    _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
+                    _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+          );
+        }
+      }
 
 class _DockIcon extends StatelessWidget {
   final IconData icon;
@@ -576,7 +588,7 @@ class _DockIcon extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
