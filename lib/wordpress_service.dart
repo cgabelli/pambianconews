@@ -39,84 +39,54 @@ class WordPressService {
           final item = NewsItem.fromWordPress(itemJson, portalName: portalName);
           
           if (portalName == 'MAGAZINE') {
-            String? foundPdf = item.pdfUrl;
-            String? foundThumb = (item.imageUrl != null && !item.imageUrl!.contains('unsplash')) ? item.imageUrl : null;
-
-            // Try to fetch attachments if data is missing
+            // v1.3 - Aggressive Fallback for Magazine Media
             try {
-              final attachmentsUrl = '$baseUrl/media?parent=${item.id}';
-              final mediaRes = await http.get(Uri.parse(attachmentsUrl));
-              if (mediaRes.statusCode == 200) {
-                final List<dynamic> mediaData = json.decode(mediaRes.body);
-                for (var media in mediaData) {
-                  if (media['mime_type'] == 'application/pdf' && foundPdf == null) {
-                    foundPdf = media['source_url'];
-                  } else if (media['mime_type'].toString().contains('image') && foundThumb == null) {
-                    foundThumb = media['source_url'];
-                  }
-                }
-              }
+              String? foundPdf = item.pdfUrl;
+              String? foundThumb = (item.imageUrl != null && !item.imageUrl!.contains('unsplash')) ? item.imageUrl : null;
 
-              // FALLBACK: Search media by title OR slug more aggressively
               if (foundThumb == null || foundPdf == null) {
-                final baseTitle = item.title.replaceAll('Pambianco ', '').replaceAll('_', ' ').split(' n')[0];
-                final searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(baseTitle)}&per_page=20';
+                final String safeTitle = item.title.replaceAll('_', ' ');
+                final String searchUrl = '$baseUrl/media?search=${Uri.encodeComponent(safeTitle)}&per_page=10';
                 final searchRes = await http.get(Uri.parse(searchUrl));
                 if (searchRes.statusCode == 200) {
-                  final List<dynamic> searchData = json.decode(searchRes.body);
-                  for (var media in searchData) {
-                    final String title = media['title']['rendered'].toString().toLowerCase();
-                    final String mime = media['mime_type'].toString();
-                    
-                    if (mime == 'application/pdf' && foundPdf == null) {
-                      foundPdf = media['source_url'];
-                    } else if (mime.contains('image') && foundThumb == null) {
-                      // Check if title matches magazine title
-                      if (title.contains(item.title.toLowerCase()) || item.title.toLowerCase().contains(title)) {
-                        foundThumb = media['source_url'];
-                      }
-                    }
+                  final List<dynamic> mediaItems = json.decode(searchRes.body);
+                  for (var m in mediaItems) {
+                    final String mMime = m['mime_type'].toString();
+                    if (mMime == 'application/pdf' && foundPdf == null) foundPdf = m['source_url'];
+                    if (mMime.contains('image') && foundThumb == null) foundThumb = m['source_url'];
                   }
                 }
               }
-              
-              // LAST RESORT: Check if there's a featured image on the POST (often mirrored)
+
               if (foundThumb == null) {
-                 // Try search post with same name on main posts endpoint
-                 final postSearch = '$baseUrl/posts?search=${Uri.encodeComponent(item.title)}&_embed';
-                 final postRes = await http.get(Uri.parse(postSearch));
-                 if (postRes.statusCode == 200) {
-                   final List<dynamic> postData = json.decode(postRes.body);
-                   if (postData.isNotEmpty && postData[0]['_embedded'] != null) {
-                     final embedded = postData[0]['_embedded'];
-                     if (embedded['wp:featuredmedia'] != null && embedded['wp:featuredmedia'].isNotEmpty) {
-                       foundThumb = embedded['wp:featuredmedia'][0]['source_url'];
-                     }
-                   }
+                 final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=5';
+                 final crossRes = await http.get(Uri.parse(crossUrl));
+                 if (crossRes.statusCode == 200) {
+                   final List<dynamic> crossMedia = json.decode(crossRes.body);
+                   if (crossMedia.isNotEmpty) foundThumb = crossMedia[0]['source_url'];
                  }
               }
+
+              if (foundThumb != null && kIsWeb) {
+                 foundThumb = 'https://images.weserv.nl/?url=${Uri.encodeComponent(foundThumb)}&w=1000';
+              }
+
+              items.add(NewsItem(
+                id: item.id,
+                title: item.title,
+                subtitle: item.subtitle,
+                category: item.category,
+                author: item.author,
+                content: item.content,
+                imageUrl: foundThumb ?? item.imageUrl,
+                type: item.type,
+                date: item.date,
+                pdfUrl: foundPdf,
+              ));
             } catch (e) {
-              debugPrint('Error fetching attachments for magazine ${item.id}: $e');
+              debugPrint('Error in Magazine Media Recovery: $e');
+              items.add(item);
             }
-
-            // Reconstruction with CORS proxy if needed
-            if (foundThumb != null && kIsWeb) {
-               foundThumb = 'https://images.weserv.nl/?url=${Uri.encodeComponent(foundThumb)}&w=1000';
-            }
-
-            items.add(NewsItem(
-              id: item.id,
-              title: item.title,
-              subtitle: item.subtitle,
-              category: item.category,
-              author: item.author,
-              content: item.content,
-              // v1.1 - Force Refresh and prioritize foundThumb
-              imageUrl: (foundThumb != null) ? foundThumb : item.imageUrl,
-              type: item.type,
-              date: item.date,
-              pdfUrl: foundPdf,
-            ));
           } else {
             items.add(item);
           }

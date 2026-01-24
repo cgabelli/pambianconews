@@ -1,4 +1,4 @@
-// Finalized v1.2 Cleanup
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
@@ -168,7 +168,6 @@ class _MagazineScreenState extends State<MagazineScreen> {
   }
 
   Future<void> _fetchAllLiveContent() async {
-    // setState(() => _isLoading = true);
     try {
       final service = WordPressService();
       final portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE&FOOD', 'HOTELLERIE', 'MAGAZINE'];
@@ -177,24 +176,14 @@ class _MagazineScreenState extends State<MagazineScreen> {
         final articles = await service.fetchArticlesForPortal(portal);
         if (articles.isNotEmpty) {
           setState(() {
-            if (_dynamicData[0].imageUrl == null && articles[0].imageUrl != null) {
-              _dynamicData[0] = NewsItem(
-                id: _dynamicData[0].id,
-                title: _dynamicData[0].title,
-                subtitle: _dynamicData[0].subtitle,
-                type: _dynamicData[0].type,
-                date: _dynamicData[0].date,
-                imageUrl: articles[0].imageUrl,
-              );
-            }
+            // v1.3 - DO NOT overwrite the first item (Splash) with news photography
+            // Unless index 0 is NO LONGER the splash.
             _dynamicData.addAll(articles);
           });
         }
       }
     } catch (e) {
       debugPrint('Error: $e');
-    } finally {
-      // setState(() => _isLoading = false);
     }
   }
 
@@ -364,7 +353,9 @@ class _CoverLayout extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: item.imageUrl != null ? Image.network(item.imageUrl!, fit: BoxFit.cover) : Container(color: const Color(0xFF1A1A1A)),
+          child: item.imageUrl != null 
+            ? Image.network(item.imageUrl!, fit: BoxFit.cover) 
+            : CustomPaint(painter: GenerativeCoverPainter(seed: item.id.hashCode)),
         ),
         Container(
           decoration: BoxDecoration(
@@ -645,4 +636,68 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
         : SfPdfViewer.network(widget.pdfUrl),
     );
   }
+}
+
+class GenerativeCoverPainter extends CustomPainter {
+  final int seed;
+  GenerativeCoverPainter({required this.seed});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = math.Random(seed);
+    final paint = Paint()..style = PaintingStyle.fill;
+    
+    final rect = Offset.zero & size;
+    final gradient = RadialGradient(
+      center: Alignment(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1),
+      radius: 1.5,
+      colors: [const Color(0xFF1A1A1A), const Color(0xFF0A0A0A)],
+    );
+    canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
+    
+    for (int i = 0; i < 15; i++) {
+      final color = _getLuxuryColor(random);
+      paint.color = color.withOpacity(random.nextDouble() * 0.4);
+      paint.blendMode = BlendMode.screen;
+      
+      final type = random.nextInt(3);
+      if (type == 0) {
+        canvas.drawCircle(
+          Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+          random.nextDouble() * 200 + 50,
+          paint,
+        );
+      } else if (type == 1) {
+        final path = Path();
+        path.moveTo(random.nextDouble() * size.width, random.nextDouble() * size.height);
+        path.quadraticBezierTo(
+          random.nextDouble() * size.width, random.nextDouble() * size.height,
+          random.nextDouble() * size.width, random.nextDouble() * size.height,
+        );
+        canvas.drawPath(path, paint..style = PaintingStyle.stroke..strokeWidth = random.nextDouble() * 10);
+      } else {
+        canvas.drawRect(
+          Rect.fromCenter(
+            center: Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+            width: random.nextDouble() * 300, height: random.nextDouble() * 300,
+          ), 
+          paint
+        );
+      }
+    }
+  }
+
+  Color _getLuxuryColor(math.Random random) {
+    const colors = [
+      Color(0xFFD4AF37), // Gold
+      Color(0xFFC0C0C0), // Silver
+      Color(0xFF4A4A4A), // Charcoal
+      Color(0xFF2C3E50), // Navy
+      Color(0xFF8E44AD), // Royal Purple
+    ];
+    return colors[random.nextInt(colors.length)];
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
