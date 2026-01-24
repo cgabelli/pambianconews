@@ -385,10 +385,10 @@ class _CoverLayout extends StatelessWidget {
               Text(
                 'PAMBIANCO\nDIGITAL',
                 style: GoogleFonts.bodoniModa(
-                  fontSize: 72,
+                  fontSize: 60,
                   fontWeight: FontWeight.w900,
                   height: 0.85,
-                  letterSpacing: -2,
+                  letterSpacing: -1,
                 ),
               ),
               const SizedBox(height: 20),
