@@ -17,9 +17,6 @@ void main() {
     statusBarIconBrightness: Brightness.light,
   ));
   runApp(const PambiancoApp());
-  if (kIsWeb) {
-    html.window.console.log('BUILD_VERIFIED_2026_01_24_17_38');
-  }
 }
 
 class PambiancoApp extends StatelessWidget {
