@@ -59,15 +59,21 @@ class WordPressService {
               }
 
               if (foundThumb == null) {
-                // v1.4 - Try searching for "cover [number]"
+                // v1.5 - Category-specific search (Beauty, Design, etc.)
                 final match = RegExp(r'n(\d+)').firstMatch(item.title);
                 if (match != null) {
-                   final String shortSearch = 'cover magazine n${match.group(1)}';
-                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=10';
+                   final String issueNum = match.group(1)!;
+                   String category = 'magazine';
+                   if (item.title.toLowerCase().contains('beauty')) category = 'beauty';
+                   if (item.title.toLowerCase().contains('design')) category = 'design';
+                   if (item.title.toLowerCase().contains('wine')) category = 'wine';
+                   if (item.title.toLowerCase().contains('hotellerie')) category = 'hotellerie';
+
+                   final String shortSearch = 'cover $category n$issueNum';
+                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=20';
                    final shortRes = await http.get(Uri.parse(shortUrl));
                    if (shortRes.statusCode == 200) {
                      final List<dynamic> shortMedia = json.decode(shortRes.body);
-                     // Filter for images only
                      for (var m in shortMedia) {
                        if (m['mime_type']?.startsWith('image/') == true) {
                          foundThumb = m['source_url'];
@@ -79,7 +85,8 @@ class WordPressService {
               }
 
               if (foundThumb == null) {
-                 final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=10';
+                 // Final fallback: Title search on main site media
+                 final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=20';
                  final crossRes = await http.get(Uri.parse(crossUrl));
                  if (crossRes.statusCode == 200) {
                    final List<dynamic> crossMedia = json.decode(crossRes.body);

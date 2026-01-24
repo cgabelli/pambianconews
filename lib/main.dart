@@ -373,16 +373,34 @@ class _CoverLayout extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               const SizedBox(height: 15),
-            Text(
-              item.title,
-              textAlign: TextAlign.left, // Changed to left for consistency with original layout
-              style: GoogleFonts.bodoniModa(
-                fontSize: 72,
-                fontWeight: FontWeight.w900,
-                height: 0.85,
-                letterSpacing: -2,
-                color: Colors.white,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'PAMBIANCO',
+                    style: GoogleFonts.bodoniModa(
+                      fontSize: 80, // Slightly larger base
+                      fontWeight: FontWeight.w900,
+                      height: 0.9,
+                      letterSpacing: -2,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Text(
+                  'DIGITAL',
+                  style: GoogleFonts.bodoniModa(
+                    fontSize: 72,
+                    fontWeight: FontWeight.w900,
+                    height: 0.9,
+                    letterSpacing: -2,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
             if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
               const SizedBox(height: 12),
