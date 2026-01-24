@@ -93,7 +93,7 @@ class NewsItem {
     this.pdfUrl,
   });
 
-  factory NewsItem.fromWordPress(Map<String, dynamic> json) {
+  factory NewsItem.fromWordPress(Map<String, dynamic> json, {String portalName = 'MODA'}) {
     String? imageUrl;
     try {
       if (json['_embedded'] != null && 
@@ -137,7 +137,7 @@ class NewsItem {
       id: idStr,
       title: _clean(json['title']?['rendered'] ?? 'Senza Titolo'),
       subtitle: _clean(json['excerpt']?['rendered'] ?? ''),
-      category: portalName == 'WINE&FOOD' ? 'WINE&FOOD' : (portalName == 'HOTELLERIE' ? 'HOTELLERIE' : portalName),
+      category: portalName == 'MAGAZINE' ? 'MAGAZINE' : (portalName == 'WINE&FOOD' ? 'WINE&FOOD' : (portalName == 'HOTELLERIE' ? 'HOTELLERIE' : portalName)),
       author: authorName ?? 'Redazione Pambianco',
       content: _clean(json['content']?['rendered'] ?? ''),
       imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=2070&auto=format&fit=crop',
