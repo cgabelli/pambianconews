@@ -381,8 +381,10 @@ class _CoverLayout extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Text(
                     'PAMBIANCO',
+                    softWrap: false,
+                    maxLines: 1,
                     style: GoogleFonts.bodoniModa(
-                      fontSize: 80, // Slightly larger base
+                      fontSize: 72,
                       fontWeight: FontWeight.w900,
                       height: 0.9,
                       letterSpacing: -2,
@@ -392,6 +394,8 @@ class _CoverLayout extends StatelessWidget {
                 ),
                 Text(
                   'DIGITAL',
+                  softWrap: false,
+                  maxLines: 1,
                   style: GoogleFonts.bodoniModa(
                     fontSize: 72,
                     fontWeight: FontWeight.w900,

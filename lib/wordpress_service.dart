@@ -59,28 +59,37 @@ class WordPressService {
               }
 
               if (foundThumb == null) {
-                // v1.5 - Category-specific search (Beauty, Design, etc.)
+                // v1.6 - Multi-variant search (Beauty n6, Beauty_n6, etc.)
                 final match = RegExp(r'n(\d+)').firstMatch(item.title);
                 if (match != null) {
-                   final String issueNum = match.group(1)!;
-                   String category = 'magazine';
-                   if (item.title.toLowerCase().contains('beauty')) category = 'beauty';
-                   if (item.title.toLowerCase().contains('design')) category = 'design';
-                   if (item.title.toLowerCase().contains('wine')) category = 'wine';
-                   if (item.title.toLowerCase().contains('hotellerie')) category = 'hotellerie';
+                  final String issueNum = match.group(1)!;
+                  String category = 'magazine';
+                  if (item.title.toLowerCase().contains('beauty')) category = 'beauty';
+                  else if (item.title.toLowerCase().contains('design')) category = 'design';
+                  else if (item.title.toLowerCase().contains('wine')) category = 'wine';
+                  else if (item.title.toLowerCase().contains('hotellerie')) category = 'hotellerie';
 
-                   final String shortSearch = 'cover $category n$issueNum';
-                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=20';
-                   final shortRes = await http.get(Uri.parse(shortUrl));
-                   if (shortRes.statusCode == 200) {
-                     final List<dynamic> shortMedia = json.decode(shortRes.body);
-                     for (var m in shortMedia) {
-                       if (m['mime_type']?.startsWith('image/') == true) {
-                         foundThumb = m['source_url'];
-                         break;
-                       }
-                     }
-                   }
+                  final List<String> searchVariants = [
+                    'cover $category n$issueNum',
+                    '$category n$issueNum',
+                    '${category}_n$issueNum',
+                    item.title.split('_').first, // e.g. "PambiancoBeauty"
+                  ];
+
+                  for (final variant in searchVariants) {
+                    final searchUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(variant)}&per_page=20';
+                    final res = await http.get(Uri.parse(searchUrl));
+                    if (res.statusCode == 200) {
+                      final List<dynamic> mediaItems = json.decode(res.body);
+                      for (var m in mediaItems) {
+                        if (m['mime_type']?.startsWith('image/') == true) {
+                          foundThumb = m['source_url'];
+                          break;
+                        }
+                      }
+                    }
+                    if (foundThumb != null) break;
+                  }
                 }
               }
 
