@@ -1141,6 +1141,7 @@ class GlassDock extends StatelessWidget {
                 _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
                 _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
                 _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
+                // Build v1.1
 
               ],
             ),
