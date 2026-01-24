@@ -106,6 +106,12 @@ class NewsItem {
       print('Error parsing WP image: $e');
     }
 
+    // Check for Magazine thumbnail specifically
+    if (portalName == 'MAGAZINE' && json['meta'] != null) {
+      if (json['meta']['thumbnail'] != null) imageUrl = json['meta']['thumbnail'];
+      if (json['meta']['_thumbnail'] != null) imageUrl = json['meta']['_thumbnail'];
+    }
+
     // CORS Proxy for Web development
     if (imageUrl != null && kIsWeb) {
       imageUrl = 'https://images.weserv.nl/?url=${Uri.encodeComponent(imageUrl)}&w=1000';
@@ -275,13 +281,24 @@ class _MagazineScreenState extends State<MagazineScreen> {
         final articles = await service.fetchArticlesForPortal(portal);
         if (articles.isNotEmpty) {
           setState(() {
+            // Update the main cover image with the very first article we found (usually latest MODA or MAGAZINE)
+            if (_dynamicData[0].imageUrl == null && articles[0].imageUrl != null) {
+              _dynamicData[0] = NewsItem(
+                id: _dynamicData[0].id,
+                title: _dynamicData[0].title,
+                subtitle: _dynamicData[0].subtitle,
+                type: _dynamicData[0].type,
+                date: _dynamicData[0].date,
+                imageUrl: articles[0].imageUrl,
+              );
+            }
+
             // Map our UI portal name to the ID in _dynamicData
             String internalId = 'index_${portal.toLowerCase().replaceAll('&', '').replaceAll(' ', '')}';
             
             int sectionIndex = _dynamicData.indexWhere((item) => item.id == internalId);
             if (sectionIndex != -1) {
               // Remove existing mock articles for this section
-              // We identify them by their prefix (e.g. moda_, design_, etc.)
               String prefix = portal.split(' ')[0].toLowerCase() + '_';
               _dynamicData.removeWhere((item) => item.id.startsWith(prefix));
               
@@ -413,10 +430,9 @@ class _CoverLayout extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.network(
-            'https://images.unsplash.com/photo-1537832816519-689ad163238b?q=80&w=2659&auto=format&fit=crop', // A cinematic fashion image
-            fit: BoxFit.cover,
-          ),
+          child: item.imageUrl != null 
+            ? Image.network(item.imageUrl!, fit: BoxFit.cover)
+            : Container(color: const Color(0xFF1A1A1A)),
         ),
         // Overlay Gradients for Readability
         Container(
