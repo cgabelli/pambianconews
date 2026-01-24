@@ -63,21 +63,32 @@ class WordPressService {
                 final match = RegExp(r'n(\d+)').firstMatch(item.title);
                 if (match != null) {
                    final String shortSearch = 'cover magazine n${match.group(1)}';
-                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=5';
+                   final shortUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(shortSearch)}&per_page=10';
                    final shortRes = await http.get(Uri.parse(shortUrl));
                    if (shortRes.statusCode == 200) {
                      final List<dynamic> shortMedia = json.decode(shortRes.body);
-                     if (shortMedia.isNotEmpty) foundThumb = shortMedia[0]['source_url'];
+                     // Filter for images only
+                     for (var m in shortMedia) {
+                       if (m['mime_type']?.startsWith('image/') == true) {
+                         foundThumb = m['source_url'];
+                         break;
+                       }
+                     }
                    }
                 }
               }
 
               if (foundThumb == null) {
-                 final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=5';
+                 final String crossUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=10';
                  final crossRes = await http.get(Uri.parse(crossUrl));
                  if (crossRes.statusCode == 200) {
                    final List<dynamic> crossMedia = json.decode(crossRes.body);
-                   if (crossMedia.isNotEmpty) foundThumb = crossMedia[0]['source_url'];
+                   for (var m in crossMedia) {
+                     if (m['mime_type']?.startsWith('image/') == true) {
+                       foundThumb = m['source_url'];
+                       break;
+                     }
+                   }
                  }
               }
 
