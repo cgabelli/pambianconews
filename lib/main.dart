@@ -147,9 +147,8 @@ class _MagazineScreenState extends State<MagazineScreen> {
   double _currentPage = 0;
   final List<NewsItem> _dynamicData = [
     NewsItem(
-      id: '0',
+      id: 'splash_${DateTime.now().millisecondsSinceEpoch}',
       title: 'PAMBIANCO\nDIGITAL',
-      subtitle: 'Lorem ipsum sit dolor',
       type: PageType.cover,
       date: DateTime.now(),
     ),
@@ -409,18 +408,6 @@ class _CoverLayout extends StatelessWidget {
                 ),
               ],
             ),
-            if (item.subtitle != null && item.subtitle!.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                item.subtitle!.toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 2,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
             const SizedBox(height: 16),
               Text('${item.date.day} GENNAIO 2026', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 3, color: Colors.white)),
             ],
@@ -622,9 +609,9 @@ class _DockIcon extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22, color: getCategoryColor(label)),
+            Icon(icon, size: 22, color: Colors.white70),
             const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.spaceMono(fontSize: 9, letterSpacing: 1, color: getCategoryColor(label))),
+            Text(label, style: GoogleFonts.spaceMono(fontSize: 9, letterSpacing: 1, color: Colors.white54)),
           ],
         ),
       ),
@@ -735,11 +722,12 @@ class GenerativeCoverPainter extends CustomPainter {
 
   Color _getLuxuryColor(math.Random random) {
     const colors = [
-      Color(0xFFD4AF37), // Gold
-      Color(0xFFC0C0C0), // Silver
-      Color(0xFF4A4A4A), // Charcoal
-      Color(0xFF2C3E50), // Navy
-      Color(0xFF8E44AD), // Royal Purple
+      Color(0xFFCD1719), // Moda
+      Color(0xFF8BB31D), // Design
+      Color(0xFF3AADC7), // Beauty
+      Color(0xFF8D1E4C), // Wine
+      Color(0xFFEB9001), // Hotellerie
+      Color(0xFFD4AF37), // Gold (Accent)
     ];
     return colors[random.nextInt(colors.length)];
   }
