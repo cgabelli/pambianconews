@@ -179,14 +179,32 @@ class _MagazineScreenState extends State<MagazineScreen> {
   Future<void> _fetchAllLiveContent() async {
     try {
       final service = WordPressService();
-      final portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE&FOOD', 'HOTELLERIE', 'MAGAZINE'];
       
+      // v2.1 - Fetch MAGAZINE first to get the latest PDF for the splash screen
+      final magazineArticles = await service.fetchArticlesForPortal('MAGAZINE');
+      if (magazineArticles.isNotEmpty) {
+        setState(() {
+          _dynamicData.addAll(magazineArticles);
+          // Update splash item (index 0) with the latest PDF URL
+          if (_dynamicData.isNotEmpty && _dynamicData[0].type == PageType.cover) {
+            final latestMag = magazineArticles.first;
+            _dynamicData[0] = NewsItem(
+              id: _dynamicData[0].id,
+              title: _dynamicData[0].title,
+              type: PageType.cover,
+              date: latestMag.date, // Use the date of the latest magazine
+              pdfUrl: latestMag.pdfUrl,
+              imageUrl: null, // Keep abstract background
+            );
+          }
+        });
+      }
+
+      final portals = ['MODA', 'DESIGN', 'BEAUTY', 'WINE&FOOD', 'HOTELLERIE'];
       for (String portal in portals) {
         final articles = await service.fetchArticlesForPortal(portal);
         if (articles.isNotEmpty) {
           setState(() {
-            // v1.3 - DO NOT overwrite the first item (Splash) with news photography
-            // Unless index 0 is NO LONGER the splash.
             _dynamicData.addAll(articles);
           });
         }
