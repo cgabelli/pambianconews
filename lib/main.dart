@@ -149,7 +149,7 @@ class _MagazineScreenState extends State<MagazineScreen> {
     NewsItem(
       id: '0',
       title: 'PAMBIANCO\nDIGITAL',
-      subtitle: 'The Future of Digital Luxury',
+      subtitle: 'Lorem ipsum sit dolor',
       type: PageType.cover,
       date: DateTime.now(),
     ),
@@ -392,16 +392,19 @@ class _CoverLayout extends StatelessWidget {
                     ),
                   ),
                 ),
-                Text(
-                  'DIGITAL',
-                  softWrap: false,
-                  maxLines: 1,
-                  style: GoogleFonts.bodoniModa(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w900,
-                    height: 0.9,
-                    letterSpacing: -2,
-                    color: Colors.white,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'DIGITAL',
+                    softWrap: false,
+                    maxLines: 1,
+                    style: GoogleFonts.bodoniModa(
+                      fontSize: 72,
+                      fontWeight: FontWeight.w900,
+                      height: 0.9,
+                      letterSpacing: -2,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -471,7 +474,7 @@ class _ArticleStandardLayout extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                Text(item.category ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 3, color: const Color(0xFFD4AF37))),
+                Text(item.category ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 3, color: getCategoryColor(item.category))),
                 const SizedBox(height: 10),
                 Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 34, height: 1.1, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 15),
@@ -528,7 +531,7 @@ class _ArticleFullImageLayout extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(item.category?.toUpperCase() ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 4, color: const Color(0xFFD4AF37))),
+              Text(item.category?.toUpperCase() ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 4, color: getCategoryColor(item.category))),
               const SizedBox(height: 15),
               Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 42, fontWeight: FontWeight.w800)),
               const SizedBox(height: 20),
@@ -619,14 +622,25 @@ class _DockIcon extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22, color: Colors.white),
+            Icon(icon, size: 22, color: getCategoryColor(label)),
             const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.spaceMono(fontSize: 9, letterSpacing: 1, color: Colors.white70)),
+            Text(label, style: GoogleFonts.spaceMono(fontSize: 9, letterSpacing: 1, color: getCategoryColor(label))),
           ],
         ),
       ),
     );
   }
+}
+
+Color getCategoryColor(String? category) {
+  if (category == null) return const Color(0xFFD4AF37);
+  final cat = category.toUpperCase();
+  if (cat.contains('BEAUTY')) return const Color(0xFF3AADC7);
+  if (cat.contains('DESIGN')) return const Color(0xFF8BB31D);
+  if (cat.contains('HOTELLERIE')) return const Color(0xFFEB9001);
+  if (cat.contains('MODA')) return const Color(0xFFCD1719);
+  if (cat.contains('WINE')) return const Color(0xFF8D1E4C);
+  return const Color(0xFFD4AF37);
 }
 
 class PdfViewerPage extends StatefulWidget {

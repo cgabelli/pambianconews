@@ -69,12 +69,17 @@ class WordPressService {
                   else if (item.title.toLowerCase().contains('wine')) category = 'wine';
                   else if (item.title.toLowerCase().contains('hotellerie')) category = 'hotellerie';
 
+                  final yearMatch = RegExp(r'20\d{2}').firstMatch(item.title);
+                  final String? year = yearMatch?.group(0);
+
                   final List<String> searchVariants = [
+                    if (year != null) 'cover $category n$issueNum $year',
+                    if (year != null) '$category n$issueNum $year',
                     'cover $category n$issueNum',
                     '$category n$issueNum',
                     '${category}_n$issueNum',
-                    item.title.replaceAll('_', ' '), // e.g. "PambiancoDesign n5 2025" -> "PambiancoDesign n5 2025"
-                    item.title.split('_').first.replaceAll('Pambianco', 'Pambianco '), // e.g. "PambiancoDesign" -> "Pambianco Design"
+                    item.title.replaceAll('_', ' '),
+                    item.title.split('_').first.replaceAll('Pambianco', 'Pambianco '),
                   ];
 
                   for (final variant in searchVariants) {
