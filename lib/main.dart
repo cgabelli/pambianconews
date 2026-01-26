@@ -464,8 +464,6 @@ class _ArticleStandardLayout extends StatelessWidget {
                 Text(item.category ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 3, color: getCategoryColor(item.category))),
                 const SizedBox(height: 10),
                 Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 34, height: 1.1, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 15),
-                Text(item.subtitle ?? '', style: GoogleFonts.inter(fontSize: 18, color: Colors.white70)),
                 const SizedBox(height: 25),
                 Text(item.content ?? '', style: GoogleFonts.inter(fontSize: 16, height: 1.6, color: Colors.white.withAlpha(217))),
                 const SizedBox(height: 100),
