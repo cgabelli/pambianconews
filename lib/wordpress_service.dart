@@ -82,21 +82,44 @@ class WordPressService {
                     item.title.split('_').first.replaceAll('Pambianco', 'Pambianco '),
                   ];
 
-                  for (final variant in searchVariants) {
-                    final searchUrl = '${portalConfigs['MODA']!['url']}/media?search=${Uri.encodeComponent(variant)}&per_page=20';
-                    final res = await http.get(Uri.parse(searchUrl));
-                    if (res.statusCode == 200) {
-                      final List<dynamic> mediaItems = json.decode(res.body);
-                      for (var m in mediaItems) {
-                        if (m['mime_type']?.startsWith('image/') == true) {
-                          foundThumb = m['source_url'];
-                          break;
+                  final List<String> siteUrls = [
+                    config['url'] as String, // Magazine site
+                    portalConfigs['MODA']!['url'] as String, // Main site
+                  ];
+
+                  for (final baseUrlForSearch in siteUrls) {
+                    for (final variant in searchVariants) {
+                      final searchUrl = '$baseUrlForSearch/media?search=${Uri.encodeComponent(variant)}&per_page=20';
+                      final res = await http.get(Uri.parse(searchUrl));
+                      if (res.statusCode == 200) {
+                        final List<dynamic> mediaItems = json.decode(res.body);
+                        for (var m in mediaItems) {
+                          if (m['mime_type']?.startsWith('image/') == true) {
+                            foundThumb = m['source_url'];
+                            break;
+                          }
                         }
                       }
+                      if (foundThumb != null) break;
                     }
                     if (foundThumb != null) break;
                   }
                 }
+              }
+
+              if (foundThumb == null) {
+                 // Final fallback: Title search on magazine site media
+                 final String magUrl = '${portalConfigs['MAGAZINE']!['url']}/media?search=${Uri.encodeComponent(item.title)}&per_page=20';
+                 final magRes = await http.get(Uri.parse(magUrl));
+                 if (magRes.statusCode == 200) {
+                   final List<dynamic> magMedia = json.decode(magRes.body);
+                   for (var m in magMedia) {
+                     if (m['mime_type']?.startsWith('image/') == true) {
+                       foundThumb = m['source_url'];
+                       break;
+                     }
+                   }
+                 }
               }
 
               if (foundThumb == null) {
