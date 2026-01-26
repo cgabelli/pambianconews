@@ -735,93 +735,56 @@ class GenerativeCoverPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final random = math.Random(seed);
-    final rect = Offset.zero & size;
+    final paint = Paint()..style = PaintingStyle.fill;
     
-    // 1. Deep Luxury Base
-    canvas.drawRect(rect, Paint()..color = const Color(0xFF050505));
-
-    // 2. Ambient Radial Glows (Background depth)
-    for (int i = 0; i < 3; i++) {
-      final glowPaint = Paint()
-        ..shader = RadialGradient(
-          center: Alignment(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1),
-          radius: 1.5,
-          colors: [
-            _getLuxuryColor(random).withOpacity(0.05),
-            Colors.transparent,
-          ],
-        ).createShader(rect)
-        ..blendMode = BlendMode.screen;
-      canvas.drawRect(rect, glowPaint);
-    }
-
-    // 3. Draw Liquid Silk Folds
-    final List<Color> silkColors = [
-      const Color(0xFFCD1719), // Moda Red
-      const Color(0xFFD4AF37), // Gold
-      const Color(0xFF8D1E4C), // Wine
-      const Color(0xFF1A1A1A), // Charcoal
-      const Color(0xFF3AADC7), // Beauty Blue
-    ];
-
+    final rect = Offset.zero & size;
+    final gradient = RadialGradient(
+      center: Alignment(random.nextDouble() * 2 - 1, random.nextDouble() * 2 - 1),
+      radius: 1.5,
+      colors: [const Color(0xFF1A1A1A), const Color(0xFF0A0A0A)],
+    );
+    canvas.drawRect(rect, Paint()..shader = gradient.createShader(rect));
+    
     for (int i = 0; i < 15; i++) {
-      final color = silkColors[random.nextInt(silkColors.length)];
-      final path = Path();
+      final color = _getLuxuryColor(random);
+      paint.color = color.withOpacity(random.nextDouble() * 0.4);
+      paint.blendMode = BlendMode.screen;
       
-      // Flowing path across the screen
-      double startX = random.nextDouble() * size.width;
-      path.moveTo(startX, -100);
-
-      path.cubicTo(
-        random.nextDouble() * size.width * 1.5 - size.width * 0.25, 
-        size.height * 0.33,
-        random.nextDouble() * size.width * 1.5 - size.width * 0.25, 
-        size.height * 0.66,
-        random.nextDouble() * size.width, 
-        size.height + 100
-      );
-
-      // Create a visible "strip" of silk
-      final double width = random.nextDouble() * 300 + 100;
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = width
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.0),
-            color.withOpacity(0.12),
-            color.withOpacity(0.0),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ).createShader(rect)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 40)
-        ..blendMode = BlendMode.screen;
-
-      canvas.drawPath(path, paint);
-
-      // Add a higher-fidelity "edge" or "highlight" to some folds
-      if (random.nextDouble() > 0.7) {
-        final highlightPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..color = color.withOpacity(0.15)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5)
-          ..blendMode = BlendMode.screen;
-        canvas.drawPath(path, highlightPaint);
+      final type = random.nextInt(3);
+      if (type == 0) {
+        canvas.drawCircle(
+          Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+          random.nextDouble() * 200 + 50,
+          paint,
+        );
+      } else if (type == 1) {
+        final path = Path();
+        path.moveTo(random.nextDouble() * size.width, random.nextDouble() * size.height);
+        path.quadraticBezierTo(
+          random.nextDouble() * size.width, random.nextDouble() * size.height,
+          random.nextDouble() * size.width, random.nextDouble() * size.height,
+        );
+        canvas.drawPath(path, paint..style = PaintingStyle.stroke..strokeWidth = random.nextDouble() * 10);
+      } else {
+        canvas.drawRect(
+          Rect.fromCenter(
+            center: Offset(random.nextDouble() * size.width, random.nextDouble() * size.height),
+            width: random.nextDouble() * 300, height: random.nextDouble() * 300,
+          ), 
+          paint
+        );
       }
     }
   }
 
   Color _getLuxuryColor(math.Random random) {
     const colors = [
-      Color(0xFFCD1719),
-      Color(0xFF8BB31D),
-      Color(0xFF3AADC7),
-      Color(0xFF8D1E4C),
-      Color(0xFFEB9001),
-      Color(0xFFD4AF37),
+      Color(0xFFCD1719), // Moda
+      Color(0xFF8BB31D), // Design
+      Color(0xFF3AADC7), // Beauty
+      Color(0xFF8D1E4C), // Wine
+      Color(0xFFEB9001), // Hotellerie
+      Color(0xFFD4AF37), // Gold (Accent)
     ];
     return colors[random.nextInt(colors.length)];
   }
