@@ -111,18 +111,28 @@ class NewsItem {
       }
     } catch (e) {}
 
+    String cleanTitle = _clean(json['title']?['rendered'] ?? 'Senza Titolo');
+    String cleanExcerpt = _clean(json['excerpt']?['rendered'] ?? '');
+    String cleanContent = _clean(json['content']?['rendered'] ?? '');
+
+    // v2.0 - Eliminate Duplicate Excerpt from Content
+    // WordPress often prepends the excerpt to the content. If they overlap significantly, we strip the prefix.
+    if (cleanExcerpt.isNotEmpty && cleanContent.startsWith(cleanExcerpt.replaceAll('...', '').trim())) {
+      cleanContent = cleanContent.replaceFirst(cleanExcerpt.replaceAll('...', '').trim(), '').trim();
+    }
+
     return NewsItem(
       id: idStr,
-      title: _clean(json['title']?['rendered'] ?? 'Senza Titolo'),
-      subtitle: _clean(json['excerpt']?['rendered'] ?? ''),
+      title: cleanTitle,
+      subtitle: cleanExcerpt, // Keep it in model but we don't render it anymore
       category: portalName == 'MAGAZINE' ? 'MAGAZINE' : (portalName == 'WINE&FOOD' ? 'WINE&FOOD' : (portalName == 'HOTELLERIE' ? 'HOTELLERIE' : portalName)),
       author: authorName ?? 'Redazione Pambianco',
-      content: _clean(json['content']?['rendered'] ?? ''),
+      content: cleanContent,
       imageUrl: imageUrl ?? 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=2070&auto=format&fit=crop',
       type: PageType.article,
       layoutType: layoutType,
       date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
-      quote: layoutType == ArticleLayoutType.quote ? _clean(json['title']?['rendered'] ?? '') : null,
+      quote: layoutType == ArticleLayoutType.quote ? cleanTitle : null,
       pdfUrl: json['meta'] != null ? json['meta']['magazine_pdf'] ?? json['meta']['pdf_url'] : null,
     );
   }
