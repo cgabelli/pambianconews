@@ -296,6 +296,7 @@ class _MagazineScreenState extends State<MagazineScreen> {
                 item: _dynamicData[index],
                 parallaxRatio: difference,
                 controller: _pageController,
+                onTap: (pdfUrl, title) => _openPdf(context, pdfUrl, title),
               );
             },
           ),
@@ -331,8 +332,9 @@ class MagazinePage extends StatelessWidget {
   final NewsItem item;
   final double parallaxRatio;
   final PageController controller;
+  final void Function(String, String)? onTap;
 
-  const MagazinePage({super.key, required this.item, required this.parallaxRatio, required this.controller});
+  const MagazinePage({super.key, required this.item, required this.parallaxRatio, required this.controller, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -345,8 +347,8 @@ class MagazinePage extends StatelessWidget {
 
   Widget _buildLayout(BuildContext context) {
     switch (item.type) {
-      case PageType.cover: return _CoverLayout(item: item);
-      case PageType.article: return _ArticleDispatcher(item: item, parallaxRatio: parallaxRatio, controller: controller);
+      case PageType.cover: return _CoverLayout(item: item, onTap: onTap);
+      case PageType.article: return _ArticleDispatcher(item: item, parallaxRatio: parallaxRatio, controller: controller, onTap: onTap);
       case PageType.adv: return _AdvLayout(item: item);
       default: return const SizedBox.shrink();
     }
@@ -355,11 +357,18 @@ class MagazinePage extends StatelessWidget {
 
 class _CoverLayout extends StatelessWidget {
   final NewsItem item;
-  const _CoverLayout({required this.item});
+  final void Function(String, String)? onTap;
+  const _CoverLayout({required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return GestureDetector(
+      onTap: () {
+        if (item.pdfUrl != null && onTap != null) {
+          onTap!(item.pdfUrl!, item.title);
+        }
+      },
+      child: Stack(
       children: [
         Positioned.fill(
           child: item.imageUrl != null 
@@ -432,14 +441,15 @@ class _ArticleDispatcher extends StatelessWidget {
   final NewsItem item;
   final double parallaxRatio;
   final PageController controller;
-  const _ArticleDispatcher({required this.item, required this.parallaxRatio, required this.controller});
+  final void Function(String, String)? onTap;
+  const _ArticleDispatcher({required this.item, required this.parallaxRatio, required this.controller, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     switch (item.layoutType) {
-      case ArticleLayoutType.quote: return _ArticleQuoteLayout(item: item, parallaxRatio: parallaxRatio);
-      case ArticleLayoutType.fullImage: return _ArticleFullImageLayout(item: item, parallaxRatio: parallaxRatio);
-      default: return _ArticleStandardLayout(item: item, parallaxRatio: parallaxRatio);
+      case ArticleLayoutType.quote: return _ArticleQuoteLayout(item: item, parallaxRatio: parallaxRatio, onTap: onTap);
+      case ArticleLayoutType.fullImage: return _ArticleFullImageLayout(item: item, parallaxRatio: parallaxRatio, onTap: onTap);
+      default: return _ArticleStandardLayout(item: item, parallaxRatio: parallaxRatio, onTap: onTap);
     }
   }
 }
@@ -447,11 +457,18 @@ class _ArticleDispatcher extends StatelessWidget {
 class _ArticleStandardLayout extends StatelessWidget {
   final NewsItem item;
   final double parallaxRatio;
-  const _ArticleStandardLayout({required this.item, required this.parallaxRatio});
+  final void Function(String, String)? onTap;
+  const _ArticleStandardLayout({required this.item, required this.parallaxRatio, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return GestureDetector(
+      onTap: () {
+        if (item.pdfUrl != null && onTap != null) {
+          onTap!(item.pdfUrl!, item.title);
+        }
+      },
+      child: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -489,11 +506,18 @@ class _ArticleStandardLayout extends StatelessWidget {
 class _ArticleQuoteLayout extends StatelessWidget {
   final NewsItem item;
   final double parallaxRatio;
-  const _ArticleQuoteLayout({required this.item, required this.parallaxRatio});
+  final void Function(String, String)? onTap;
+  const _ArticleQuoteLayout({required this.item, required this.parallaxRatio, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        if (item.pdfUrl != null && onTap != null) {
+          onTap!(item.pdfUrl!, item.title);
+        }
+      },
+      child: Container(
       padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -512,11 +536,18 @@ class _ArticleQuoteLayout extends StatelessWidget {
 class _ArticleFullImageLayout extends StatelessWidget {
   final NewsItem item;
   final double parallaxRatio;
-  const _ArticleFullImageLayout({required this.item, required this.parallaxRatio});
+  final void Function(String, String)? onTap;
+  const _ArticleFullImageLayout({required this.item, required this.parallaxRatio, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return GestureDetector(
+      onTap: () {
+        if (item.pdfUrl != null && onTap != null) {
+          onTap!(item.pdfUrl!, item.title);
+        }
+      },
+      child: Stack(
       children: [
         Positioned.fill(child: Image.network(item.imageUrl!, fit: BoxFit.cover)),
         Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black87]))),
