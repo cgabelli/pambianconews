@@ -116,7 +116,6 @@ class NewsItem {
     String cleanContent = _clean(json['content']?['rendered'] ?? '');
 
     // v2.0 - Eliminate Duplicate Excerpt from Content
-    // WordPress often prepends the excerpt to the content. If they overlap significantly, we strip the prefix.
     if (cleanExcerpt.isNotEmpty && cleanContent.startsWith(cleanExcerpt.replaceAll('...', '').trim())) {
       cleanContent = cleanContent.replaceFirst(cleanExcerpt.replaceAll('...', '').trim(), '').trim();
     }
@@ -124,7 +123,7 @@ class NewsItem {
     return NewsItem(
       id: idStr,
       title: cleanTitle,
-      subtitle: cleanExcerpt, // Keep it in model but we don't render it anymore
+      subtitle: cleanExcerpt,
       category: portalName == 'MAGAZINE' ? 'MAGAZINE' : (portalName == 'WINE&FOOD' ? 'WINE&FOOD' : (portalName == 'HOTELLERIE' ? 'HOTELLERIE' : portalName)),
       author: authorName ?? 'Redazione Pambianco',
       content: cleanContent,
@@ -163,7 +162,6 @@ class _MagazineScreenState extends State<MagazineScreen> {
       date: DateTime.now(),
     ),
   ];
-  // bool _isLoading = false; // Unused in build, removing to satisfy lint
 
   @override
   void initState() {
@@ -180,21 +178,19 @@ class _MagazineScreenState extends State<MagazineScreen> {
     try {
       final service = WordPressService();
       
-      // v2.1 - Fetch MAGAZINE first to get the latest PDF for the splash screen
       final magazineArticles = await service.fetchArticlesForPortal('MAGAZINE');
       if (magazineArticles.isNotEmpty) {
         setState(() {
           _dynamicData.addAll(magazineArticles);
-          // Update splash item (index 0) with the latest PDF URL
           if (_dynamicData.isNotEmpty && _dynamicData[0].type == PageType.cover) {
             final latestMag = magazineArticles.first;
             _dynamicData[0] = NewsItem(
               id: _dynamicData[0].id,
               title: _dynamicData[0].title,
               type: PageType.cover,
-              date: latestMag.date, // Use the date of the latest magazine
+              date: latestMag.date,
               pdfUrl: latestMag.pdfUrl,
-              imageUrl: null, // Keep abstract background
+              imageUrl: null,
             );
           }
         });
@@ -220,15 +216,11 @@ class _MagazineScreenState extends State<MagazineScreen> {
     final Map<String, NewsItem> latestByCategory = {};
     for (var mag in magazinesList) {
       String group = 'General';
-      if (mag.title.contains('Beauty')) {
-        group = 'Beauty';
-      } else if (mag.title.contains('Design')) {
-        group = 'Design';
-      } else if (mag.title.contains('Hotellerie')) {
-        group = 'Hotellerie';
-      } else if (mag.title.contains('Magazine')) {
-        group = 'Magazine';
-      }
+      if (mag.title.contains('Beauty')) group = 'Beauty';
+      else if (mag.title.contains('Design')) group = 'Design';
+      else if (mag.title.contains('Hotellerie')) group = 'Hotellerie';
+      else if (mag.title.contains('Magazine')) group = 'Magazine';
+      
       if (!latestByCategory.containsKey(group)) {
         latestByCategory[group] = mag;
       }
@@ -387,70 +379,71 @@ class _CoverLayout extends StatelessWidget {
         }
       },
       child: Stack(
-      children: [
-        Positioned.fill(
-          child: item.imageUrl != null 
-            ? Image.network(item.imageUrl!, fit: BoxFit.cover) 
-            : CustomPaint(painter: GenerativeCoverPainter(seed: item.id.hashCode)),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.black.withAlpha(153), Colors.transparent, Colors.black.withAlpha(204)],
+        children: [
+          Positioned.fill(
+            child: item.imageUrl != null 
+              ? Image.network(item.imageUrl!, fit: BoxFit.cover) 
+              : CustomPaint(painter: GenerativeCoverPainter(seed: item.id.hashCode)),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black.withAlpha(153), Colors.transparent, Colors.black.withAlpha(204)],
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 120),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              const SizedBox(height: 15),
-            Column(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 120),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'PAMBIANCO',
-                    softWrap: false,
-                    maxLines: 1,
-                    style: GoogleFonts.bodoniModa(
-                      fontSize: 72,
-                      fontWeight: FontWeight.w900,
-                      height: 0.9,
-                      letterSpacing: -2,
-                      color: Colors.white,
+                const SizedBox(height: 15),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'PAMBIANCO',
+                        softWrap: false,
+                        maxLines: 1,
+                        style: GoogleFonts.bodoniModa(
+                          fontSize: 72,
+                          fontWeight: FontWeight.w900,
+                          height: 0.9,
+                          letterSpacing: -2,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'DIGITAL',
-                    softWrap: false,
-                    maxLines: 1,
-                    style: GoogleFonts.bodoniModa(
-                      fontSize: 72,
-                      fontWeight: FontWeight.w900,
-                      height: 0.9,
-                      letterSpacing: -2,
-                      color: Colors.white,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'DIGITAL',
+                        softWrap: false,
+                        maxLines: 1,
+                        style: GoogleFonts.bodoniModa(
+                          fontSize: 72,
+                          fontWeight: FontWeight.w900,
+                          height: 0.9,
+                          letterSpacing: -2,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
+                const SizedBox(height: 16),
+                Text('${item.date.day} FEBBRAIO 2026', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 3, color: Colors.white)),
               ],
             ),
-            const SizedBox(height: 16),
-              Text('${item.date.day} GENNAIO 2026', style: GoogleFonts.spaceMono(fontSize: 14, letterSpacing: 3, color: Colors.white)),
-            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -487,35 +480,36 @@ class _ArticleStandardLayout extends StatelessWidget {
         }
       },
       child: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.45,
-            width: double.infinity,
-            child: Stack(
-              children: [
-                Positioned.fill(child: Transform.translate(offset: Offset(parallaxRatio * 50, 0), child: Image.network(item.imageUrl!, fit: BoxFit.cover))),
-                Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [const Color(0xFF0A0A0A), Colors.transparent]))),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.45,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Positioned.fill(child: Transform.translate(offset: Offset(parallaxRatio * 50, 0), child: Image.network(item.imageUrl!, fit: BoxFit.cover))),
+                  Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [const Color(0xFF0A0A0A), Colors.transparent]))),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Text(item.category ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 3, color: getCategoryColor(item.category))),
-                const SizedBox(height: 10),
-                Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 34, height: 1.1, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 25),
-                Text(item.content ?? '', style: GoogleFonts.inter(fontSize: 16, height: 1.6, color: Colors.white.withAlpha(217))),
-                const SizedBox(height: 100),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Text(item.category ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 3, color: getCategoryColor(item.category))),
+                  const SizedBox(height: 10),
+                  Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 34, height: 1.1, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 25),
+                  Text(item.content ?? '', style: GoogleFonts.inter(fontSize: 16, height: 1.6, color: Colors.white.withAlpha(217))),
+                  const SizedBox(height: 100),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -536,16 +530,17 @@ class _ArticleQuoteLayout extends StatelessWidget {
         }
       },
       child: Container(
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.format_quote, size: 60, color: Color(0xFFD4AF37)),
-          const SizedBox(height: 20),
-          Text(item.quote ?? item.title, textAlign: TextAlign.center, style: GoogleFonts.bodoniModa(fontSize: 26, fontStyle: FontStyle.italic, height: 1.4)),
-          const SizedBox(height: 20),
-          Text(item.author?.toUpperCase() ?? 'REDAZIONE', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 2, fontWeight: FontWeight.w700)),
-        ],
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.format_quote, size: 60, color: Color(0xFFD4AF37)),
+            const SizedBox(height: 20),
+            Text(item.quote ?? item.title, textAlign: TextAlign.center, style: GoogleFonts.bodoniModa(fontSize: 26, fontStyle: FontStyle.italic, height: 1.4)),
+            const SizedBox(height: 20),
+            Text(item.author?.toUpperCase() ?? 'REDAZIONE', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 2, fontWeight: FontWeight.w700)),
+          ],
+        ),
       ),
     );
   }
@@ -566,24 +561,25 @@ class _ArticleFullImageLayout extends StatelessWidget {
         }
       },
       child: Stack(
-      children: [
-        Positioned.fill(child: Image.network(item.imageUrl!, fit: BoxFit.cover)),
-        Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black87]))),
-        Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(item.category?.toUpperCase() ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 4, color: getCategoryColor(item.category))),
-              const SizedBox(height: 15),
-              Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 42, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 20),
-              Text(item.content ?? '', style: GoogleFonts.inter(fontSize: 16, height: 1.6, color: Colors.white70), maxLines: 5, overflow: TextOverflow.ellipsis),
-            ],
+        children: [
+          Positioned.fill(child: Image.network(item.imageUrl!, fit: BoxFit.cover)),
+          Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black87]))),
+          Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.category?.toUpperCase() ?? '', style: GoogleFonts.spaceMono(fontSize: 12, letterSpacing: 4, color: getCategoryColor(item.category))),
+                const SizedBox(height: 15),
+                Text(item.title, style: GoogleFonts.bodoniModa(fontSize: 42, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 20),
+                Text(item.content ?? '', style: GoogleFonts.inter(fontSize: 16, height: 1.6, color: Colors.white70), maxLines: 5, overflow: TextOverflow.ellipsis),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -633,22 +629,22 @@ class GlassDock extends StatelessWidget {
         borderRadius: BorderRadius.circular(35),
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
-                    _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
-                    _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
-                    _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
-                    _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
-                    _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }
-      }
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _DockIcon(icon: Icons.checkroom, label: 'MODA', onTap: () => onCategoryTap('MODA')),
+              _DockIcon(icon: Icons.chair, label: 'DESIGN', onTap: () => onCategoryTap('DESIGN')),
+              _DockIcon(icon: Icons.face, label: 'BEAUTY', onTap: () => onCategoryTap('BEAUTY')),
+              _DockIcon(icon: Icons.restaurant, label: 'WINE&FOOD', onTap: () => onCategoryTap('WINE&FOOD')),
+              _DockIcon(icon: Icons.hotel, label: 'HOTELLERIE', onTap: () => onCategoryTap('HOTELLERIE')),
+              _DockIcon(icon: Icons.picture_as_pdf, label: 'MAGAZINE', onTap: () => onCategoryTap('MAGAZINE')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _DockIcon extends StatelessWidget {
   final IconData icon;
