@@ -1,6 +1,8 @@
-# pambiancodigital
+# Pambianco Digital
 
-A new Flutter project.
+Digital luxury magazine prototype.
+
+*Reactivated for demo - Feb 11, 2026*
 
 ## Getting Started
 
