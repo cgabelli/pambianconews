@@ -137,9 +137,9 @@ class NewsItem {
     );
   }
 
-  static String _clean(String? html) {
-    if (html == null) return '';
-    return html.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '').replaceAll('[&hellip;]', '...').trim();
+  static String _clean(String? input) {
+    if (input == null) return '';
+    return input.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), '').replaceAll('[&hellip;]', '...').trim();
   }
 }
 
