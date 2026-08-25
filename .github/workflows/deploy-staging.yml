@@ -1,4 +1,4 @@
-name: Deploy Staging to GitHub Pages
+name: Deploy Staging to GitHub Pages & Hetzner Server
 
 on:
   push:
@@ -25,9 +25,47 @@ jobs:
       - name: Build Web for Staging
         run: flutter build web --release --base-href "/pambianconews/staging/" --dart-define=ENVIRONMENT=staging
 
-      - name: Deploy Staging to GitHub Pages
+      - name: Deploy Staging Preview to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: build/web
           target-folder: staging
           branch: gh-pages
+
+      - name: Auto-Provision & Setup Hetzner Staging Server
+        uses: appleboy/ssh-action@v1.0.0
+        continue-on-error: true
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Initializing Hetzner Server Environment..."
+            mkdir -p /var/www/staging.pambianconews.com
+            apt-get update && apt-get install -y curl git rsync ufw apache2-utils ca-certificates gnupg
+            if ! command -v docker &> /dev/null; then
+              echo "🐳 Installing Docker..."
+              curl -fsSL https://get.docker.com | sh
+            fi
+            ufw allow 22/tcp || true
+            ufw allow 80/tcp || true
+            ufw allow 443/tcp || true
+            ufw --force enable || true
+            if [ ! -f /etc/nginx/.htpasswd ]; then
+              mkdir -p /etc/nginx
+              htpasswd -cb /etc/nginx/.htpasswd pambianco Staging2026!
+              echo "Basic Auth created: pambianco / Staging2026!"
+            fi
+            echo "✅ Server setup complete!"
+
+      - name: Deploy Code to Hetzner Staging Server via SSH
+        uses: easingthemes/ssh-deploy@main
+        continue-on-error: true
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          ARGS: "-rltgoDzvO --delete"
+          SOURCE: "build/web/ docker/ scripts/ wp-config-sample.php"
+          REMOTE_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          REMOTE_USER: ${{ secrets.STAGING_SSH_USER }}
+          TARGET: ${{ secrets.STAGING_TARGET_DIR }}
+          EXCLUDE: "/wp-content/uploads/, /.git/, /.github/"
