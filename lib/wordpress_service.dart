@@ -4,6 +4,9 @@ import 'main.dart'; // To access NewsItem
 import 'package:flutter/foundation.dart';
 
 class WordPressService {
+  static const String environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'production');
+  static bool get isStaging => environment == 'staging';
+
   static const String mainBaseUrl = 'https://www.pambianconews.com/wp-json/wp/v2';
   
   // Portal Configurations
