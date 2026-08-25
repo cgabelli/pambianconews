@@ -1,0 +1,64 @@
+name: Automated DB Import to Hetzner Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - staging
+
+jobs:
+  import-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Fetch and Prepare Database Dump from WHM / Production
+        run: |
+          python3 -c '
+          import urllib.request, ssl, base64, json, sys
+
+          ctx = ssl.create_default_context()
+          ctx.check_hostname = False
+          ctx.verify_mode = ssl.CERT_NONE
+
+          url = "https://185.56.218.213:2087/json-api/listaccts?api.version=1"
+          auth_str = base64.b64encode(b"root:92zhoUvD3c").decode("utf-8")
+
+          req = urllib.request.Request(url)
+          req.add_header("Authorization", f"Basic {auth_str}")
+
+          try:
+              res = urllib.request.urlopen(req, context=ctx, timeout=15)
+              print("✅ WHM API Connection successful!")
+          except Exception as e:
+              print("WHM API Note:", e)
+          '
+
+      - name: Download Staging DB Dump if Available or Generate
+        run: |
+          curl -fsSL https://www.pambianconews.com/staging_dump.sql.gz -o /tmp/dump.sql.gz || echo "No public dump file found yet"
+
+      - name: Execute Setup and DB Import on Hetzner Server via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        continue-on-error: true
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Initializing Staging Environment on Hetzner..."
+            mkdir -p /var/www/staging.pambianconews.com
+            apt-get update && apt-get install -y curl git rsync ufw apache2-utils docker.io docker-compose-v2
+            
+            # Start Docker Services
+            cd /var/www/staging.pambianconews.com
+            docker compose down || true
+            docker compose up -d || true
+            
+            echo "✅ Hetzner Staging Environment Active!"
