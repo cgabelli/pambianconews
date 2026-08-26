@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - staging
+  workflow_dispatch:
 
 jobs:
   build-and-deploy-staging:
@@ -36,7 +37,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         continue-on-error: true
         with:
-          host: ${{ secrets.STAGING_SSH_HOST }}
+          host: 2a01:4f8:1c19:b282::1
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
@@ -65,7 +66,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO --delete"
           SOURCE: "docker/ scripts/ wp-config-sample.php wp-content/"
-          REMOTE_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          REMOTE_HOST: "[2a01:4f8:1c19:b282::1]"
           REMOTE_USER: ${{ secrets.STAGING_SSH_USER }}
           TARGET: ${{ secrets.STAGING_TARGET_DIR }}
           EXCLUDE: "/wp-content/uploads/, /.git/, /.github/"
@@ -74,7 +75,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         continue-on-error: true
         with:
-          host: ${{ secrets.STAGING_SSH_HOST }}
+          host: 2a01:4f8:1c19:b282::1
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
