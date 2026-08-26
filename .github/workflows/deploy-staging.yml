@@ -37,7 +37,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         continue-on-error: true
         with:
-          host: 2a01:4f8:1c19:b282::1
+          host: ${{ secrets.STAGING_SSH_HOST }}
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
@@ -75,7 +75,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         continue-on-error: true
         with:
-          host: 2a01:4f8:1c19:b282::1
+          host: ${{ secrets.STAGING_SSH_HOST }}
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
