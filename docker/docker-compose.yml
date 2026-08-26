@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: pambianco_staging_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
+      - /var/www/staging.pambianconews.com:/var/www/html:ro
+    depends_on:
+      - wordpress
+
+  wordpress:
+    image: wordpress:php8.2-fpm-alpine
+    container_name: pambianco_staging_wp
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: pambianconews_staging
+      WORDPRESS_DB_USER: pambianco
+      WORDPRESS_DB_PASSWORD: Staging2026!Password
+    volumes:
+      - /var/www/staging.pambianconews.com:/var/www/html
+
+  db:
+    image: mariadb:10.11
+    container_name: pambianco_staging_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: pambianconews_staging
+      MYSQL_USER: pambianco
+      MYSQL_PASSWORD: Staging2026!Password
+      MYSQL_ROOT_PASSWORD: RootStaging2026!Password
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
