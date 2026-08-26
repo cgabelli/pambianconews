@@ -91,4 +91,8 @@ jobs:
             cd /var/www/staging.pambianconews.com/docker
             docker compose down || true
             docker compose up -d
+            echo "--- NETSTAT ---"
+            ss -tulpn || true
+            echo "--- DOCKER PS ---"
+            docker ps || true
             echo "✅ Staging Server Web Services Live on HTTP (80) & HTTPS (443)!"
