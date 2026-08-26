@@ -42,7 +42,7 @@ jobs:
           script: |
             echo "🚀 Initializing Hetzner Server Environment..."
             mkdir -p /var/www/staging.pambianconews.com
-            apt-get update && apt-get install -y curl git rsync ufw apache2-utils ca-certificates gnupg
+            apt-get update && apt-get install -y curl git rsync ufw apache2-utils ca-certificates gnupg openssl
             if ! command -v docker &> /dev/null; then
               echo "🐳 Installing Docker..."
               curl -fsSL https://get.docker.com | sh
@@ -70,7 +70,7 @@ jobs:
           TARGET: ${{ secrets.STAGING_TARGET_DIR }}
           EXCLUDE: "/wp-content/uploads/, /.git/, /.github/"
 
-      - name: Start Docker Containers on Hetzner
+      - name: Start Docker Containers on Hetzner with SSL
         uses: appleboy/ssh-action@v1.0.0
         continue-on-error: true
         with:
@@ -78,8 +78,16 @@ jobs:
           username: ${{ secrets.STAGING_SSH_USER }}
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           script: |
+            echo "🔐 Ensuring SSL Certificates for Cloudflare..."
+            mkdir -p /var/www/staging.pambianconews.com/docker/ssl
+            if [ ! -f /var/www/staging.pambianconews.com/docker/ssl/nginx.crt ]; then
+              openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+                -keyout /var/www/staging.pambianconews.com/docker/ssl/nginx.key \
+                -out /var/www/staging.pambianconews.com/docker/ssl/nginx.crt \
+                -subj "/CN=staging.pambianconews.com"
+            fi
             echo "🐳 Starting Docker Compose Services..."
             cd /var/www/staging.pambianconews.com/docker
             docker compose down || true
             docker compose up -d
-            echo "✅ Staging Server Web Services Live!"
+            echo "✅ Staging Server Web Services Live on HTTP (80) & HTTPS (443)!"
