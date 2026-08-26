@@ -64,8 +64,22 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           ARGS: "-rltgoDzvO --delete"
-          SOURCE: "build/web/ docker/ scripts/ wp-config-sample.php"
+          SOURCE: "docker/ scripts/ wp-config-sample.php wp-content/"
           REMOTE_HOST: ${{ secrets.STAGING_SSH_HOST }}
           REMOTE_USER: ${{ secrets.STAGING_SSH_USER }}
           TARGET: ${{ secrets.STAGING_TARGET_DIR }}
           EXCLUDE: "/wp-content/uploads/, /.git/, /.github/"
+
+      - name: Start Docker Containers on Hetzner
+        uses: appleboy/ssh-action@v1.0.0
+        continue-on-error: true
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          script: |
+            echo "🐳 Starting Docker Compose Services..."
+            cd /var/www/staging.pambianconews.com/docker
+            docker compose down || true
+            docker compose up -d
+            echo "✅ Staging Server Web Services Live!"
